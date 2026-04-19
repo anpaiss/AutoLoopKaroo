@@ -9,7 +9,7 @@ A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatic
 - **Auto-scroll** cycles through all pages in your active ride profile at a configurable interval
 - **Starts automatically** when you begin recording a ride
 - **Stops automatically** when you pause or end the ride
-- **Navigation-aware**: switches to the map page when approaching a turn (<50 m), then resumes scrolling 20 m after the turn
+- **Navigation-aware**: switches to the map page when approaching a turn, then resumes scrolling after the turn — both distances are configurable
 - **Toggle on/off** from the app settings at any time
 - **Audible feedback** (beep + on-screen alert) when auto-scroll is enabled or disabled
 
@@ -43,6 +43,8 @@ Open the **Auto Loop Karoo** app on your Karoo:
 |---|---|
 | **Auto Scroll** toggle | Enable or disable auto-scrolling |
 | **Time per page** | Seconds to display each page before advancing (1–30 s, default 5 s) |
+| **Switch-to-map distance** | How many metres before a turn to switch to the map page (10–100 m, default 25 m) |
+| **Resume distance** | How many metres after a turn before auto-scroll resumes (10–100 m, default 10 m) |
 
 Changes take effect immediately — no restart needed.
 
@@ -56,10 +58,10 @@ Ride starts (Recording)
                              │
                              No ──► Wait (toggle from app to enable)
 
-Approaching turn (<50 m)
+Approaching turn (within switch-to-map distance, default 25 m)
     └─► Switch to map page automatically
 
-20 m past the turn
+Past the turn by resume distance (default 10 m)
     └─► Resume page scrolling
 
 Ride paused or ended
