@@ -27,9 +27,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val TAG = "AutoScrollController"
-private const val NEAR_CUE_THRESHOLD_M = 50.0
 private const val TURN_DETECTED_THRESHOLD_M = 150.0
-private const val POST_TURN_RESUME_M = 20.0
 
 enum class ScrollState { INACTIVE, SCROLLING, NEAR_CUE, POST_TURN }
 
@@ -133,7 +131,7 @@ class AutoScrollController(
                 currentOdometer = dist
                 if (scrollState == ScrollState.POST_TURN) {
                     val traveled = currentOdometer - odometerAtTurn
-                    if (traveled >= POST_TURN_RESUME_M) onPostTurnComplete()
+                    if (traveled >= config.postTurnDistanceM) onPostTurnComplete()
                 }
             }
         }
@@ -148,7 +146,7 @@ class AutoScrollController(
     private fun onDistanceToTurn(dist: Double) {
         when (scrollState) {
             ScrollState.SCROLLING -> {
-                if (dist < NEAR_CUE_THRESHOLD_M) {
+                if (dist < config.nearCueDistanceM) {
                     Log.d(TAG, "Near cue at ${dist}m → map")
                     stateBeforeCue = ScrollState.SCROLLING
                     scrollState = ScrollState.NEAR_CUE
@@ -157,14 +155,14 @@ class AutoScrollController(
                 }
             }
             ScrollState.INACTIVE -> {
-                if (dist < NEAR_CUE_THRESHOLD_M) {
+                if (dist < config.nearCueDistanceM) {
                     stateBeforeCue = ScrollState.INACTIVE
                     scrollState = ScrollState.NEAR_CUE
                     karooSystem.dispatch(ShowMapPage(zoom = false))
                 }
             }
             ScrollState.NEAR_CUE -> {
-                if (dist > TURN_DETECTED_THRESHOLD_M && lastDistanceToTurn < NEAR_CUE_THRESHOLD_M) {
+                if (dist > TURN_DETECTED_THRESHOLD_M && lastDistanceToTurn < config.nearCueDistanceM) {
                     Log.d(TAG, "Turn completed → POST_TURN")
                     odometerAtTurn = currentOdometer
                     scrollState = ScrollState.POST_TURN

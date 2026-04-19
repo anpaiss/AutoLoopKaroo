@@ -58,6 +58,12 @@ fun ConfigScreen(context: android.content.Context) {
     var localDwellSec by remember(savedConfig) {
         mutableFloatStateOf((savedConfig.dwellMs / 1000f))
     }
+    var localNearCueM by remember(savedConfig) {
+        mutableFloatStateOf(savedConfig.nearCueDistanceM)
+    }
+    var localPostTurnM by remember(savedConfig) {
+        mutableFloatStateOf(savedConfig.postTurnDistanceM)
+    }
 
     Scaffold(
         topBar = {
@@ -121,13 +127,61 @@ fun ConfigScreen(context: android.content.Context) {
                 Text(text = "${localDwellSec.toInt()}${stringResource(R.string.config_seconds_suffix)}")
             }
 
+            HorizontalDivider()
+
+            Text(
+                text = stringResource(R.string.config_near_cue_title),
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Slider(
+                    value = localNearCueM,
+                    onValueChange = { localNearCueM = it },
+                    valueRange = 10f..100f,
+                    steps = 89,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(text = "${localNearCueM.toInt()}${stringResource(R.string.config_meters_suffix)}")
+            }
+
+            HorizontalDivider()
+
+            Text(
+                text = stringResource(R.string.config_post_turn_title),
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Slider(
+                    value = localPostTurnM,
+                    onValueChange = { localPostTurnM = it },
+                    valueRange = 10f..100f,
+                    steps = 89,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(text = "${localPostTurnM.toInt()}${stringResource(R.string.config_meters_suffix)}")
+            }
+
             Button(
                 onClick = {
                     scope.launch {
                         context.saveScrollConfig(
                             ScrollConfig(
                                 isEnabled = savedConfig.isEnabled,
-                                dwellMs = (localDwellSec * 1000).toLong()
+                                dwellMs = (localDwellSec * 1000).toLong(),
+                                nearCueDistanceM = localNearCueM,
+                                postTurnDistanceM = localPostTurnM
                             )
                         )
                     }
