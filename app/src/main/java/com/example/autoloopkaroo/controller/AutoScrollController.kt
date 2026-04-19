@@ -93,6 +93,7 @@ class AutoScrollController(
                         scrollJob?.cancel()
                         scrollState = ScrollState.INACTIVE
                         stateBeforeCue = ScrollState.INACTIVE
+                        scope.launch { notifyToggle(false) }
                     }
                 }
             }
