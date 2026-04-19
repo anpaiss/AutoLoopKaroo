@@ -146,8 +146,8 @@ fun ConfigScreen(context: android.content.Context) {
                 Slider(
                     value = localNearCueM,
                     onValueChange = { localNearCueM = it },
-                    valueRange = 10f..100f,
-                    steps = 89,
+                    valueRange = 10f..250f,
+                    steps = 239,
                     modifier = Modifier.weight(1f)
                 )
                 Text(text = "${localNearCueM.toInt()}${stringResource(R.string.config_meters_suffix)}")
@@ -169,8 +169,8 @@ fun ConfigScreen(context: android.content.Context) {
                 Slider(
                     value = localPostTurnM,
                     onValueChange = { localPostTurnM = it },
-                    valueRange = 10f..100f,
-                    steps = 89,
+                    valueRange = 10f..250f,
+                    steps = 239,
                     modifier = Modifier.weight(1f)
                 )
                 Text(text = "${localPostTurnM.toInt()}${stringResource(R.string.config_meters_suffix)}")

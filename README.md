@@ -43,8 +43,8 @@ Open the **Auto Loop Karoo** app on your Karoo:
 |---|---|
 | **Auto Scroll** toggle | Enable or disable auto-scrolling |
 | **Time per page** | Seconds to display each page before advancing (1–30 s, default 5 s) |
-| **Switch-to-map distance** | How many metres before a turn to switch to the map page (10–100 m, default 25 m) |
-| **Resume distance** | How many metres after a turn before auto-scroll resumes (10–100 m, default 10 m) |
+| **Switch-to-map distance** | How many metres before a turn to switch to the map page (10–250 m, default 25 m) |
+| **Resume distance** | How many metres after a turn before auto-scroll resumes (10–250 m, default 10 m) |
 
 Changes take effect immediately — no restart needed.
 
@@ -58,10 +58,10 @@ Ride starts (Recording)
                              │
                              No ──► Wait (toggle from app to enable)
 
-Approaching turn (within switch-to-map distance, default 25 m)
+Approaching turn (within switch-to-map distance, 10–250 m, default 25 m)
     └─► Switch to map page automatically
 
-Past the turn by resume distance (default 10 m)
+Past the turn by resume distance (10–250 m, default 10 m)
     └─► Resume page scrolling
 
 Ride paused or ended
