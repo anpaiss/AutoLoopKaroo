@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ExtensionInfo
+    id="autoloop-karoo"
+    displayName="@string/app_name"
+    icon="@mipmap/ic_launcher"
+    scansDevices="false">
+
+    <BonusAction
+        actionId="toggle_scroll"
+        displayName="@string/bonus_action_toggle" />
+
+    <DataType
+        typeId="auto_scroll_status"
+        displayName="@string/datatype_name"
+        description="@string/datatype_desc"
+        graphical="false"
+        icon="@mipmap/ic_launcher" />
+
+</ExtensionInfo>
