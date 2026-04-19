@@ -10,9 +10,9 @@ android {
     defaultConfig {
         applicationId = "com.example.autoloopkaroo"
         minSdk = 31
-        targetSdk = 31
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 34
+        versionCode = 2
+        versionName = "0.9-beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
