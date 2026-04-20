@@ -1,18 +1,18 @@
 <resources>
     <string name="app_name">Auto Loop Karoo</string>
-    <string name="bonus_action_toggle">Auto Loop: Attiva/Disattiva</string>
-    <string name="alert_scroll_on">Auto Loop ATTIVO</string>
-    <string name="alert_scroll_off">Auto Loop DISATTIVO</string>
+    <string name="bonus_action_toggle">Auto Loop: Toggle</string>
+    <string name="alert_scroll_on">Auto Loop ON</string>
+    <string name="alert_scroll_off">Auto Loop OFF</string>
     <string name="config_title">Auto Loop Karoo</string>
-    <string name="config_page_label">Pagina %d</string>
+    <string name="config_page_label">Page %d</string>
     <string name="config_seconds_suffix">s</string>
     <string name="config_toggle_label">Auto Scroll</string>
-    <string name="config_toggle_hint">Lo scroll parte automaticamente all\'inizio della corsa.</string>
-    <string name="config_dwell_title">Tempo per pagina</string>
+    <string name="config_toggle_hint">Scrolling starts automatically at the beginning of the ride.</string>
+    <string name="config_dwell_title">Time per page</string>
     <string name="datatype_name">Auto Scroll</string>
-    <string name="datatype_desc">Stato auto-scroll pagine</string>
-    <string name="config_near_cue_title">Distanza switch mappa (all\'incrocio)</string>
-    <string name="config_post_turn_title">Distanza ripresa auto-loop (dopo incrocio)</string>
+    <string name="datatype_desc">Page auto-scroll status</string>
+    <string name="config_near_cue_title">Map switch distance (at turn)</string>
+    <string name="config_post_turn_title">Auto-loop resume distance (after turn)</string>
     <string name="config_meters_suffix">m</string>
-    <string name="config_save">Salva</string>
+    <string name="config_save">Save</string>
 </resources>
