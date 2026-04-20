@@ -24,6 +24,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 
@@ -56,6 +57,7 @@ class AutoScrollController(
     private val consumerIds = mutableListOf<String>()
     private var navConsumerIds = mutableListOf<String>()
 
+    @OptIn(FlowPreview::class)
     fun start() {
         if (started) return
         started = true
