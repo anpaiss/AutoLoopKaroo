@@ -24,10 +24,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 
 private const val TAG = "AutoScrollController"
-private const val TURN_DETECTED_THRESHOLD_M = 150.0
 
 enum class ScrollState { INACTIVE, SCROLLING, NEAR_CUE, POST_TURN }
 
@@ -46,6 +47,7 @@ class AutoScrollController(
     private var config = ScrollConfig()
 
     private var scrollJob: Job? = null
+    @Volatile private var started = false
 
     private var lastDistanceToTurn = Double.MAX_VALUE
     private var odometerAtTurn = 0.0
@@ -54,9 +56,13 @@ class AutoScrollController(
     private val consumerIds = mutableListOf<String>()
     private var navConsumerIds = mutableListOf<String>()
 
+    @OptIn(FlowPreview::class)
     fun start() {
+        if (started) return
+        started = true
+
         scope.launch {
-            context.scrollConfigFlow().collect { cfg ->
+            context.scrollConfigFlow().debounce(300L).collect { cfg ->
                 val enabledChanged = cfg.isEnabled != config.isEnabled
                 config = cfg
                 if (enabledChanged) {
@@ -151,18 +157,26 @@ class AutoScrollController(
                     stateBeforeCue = ScrollState.SCROLLING
                     scrollState = ScrollState.NEAR_CUE
                     scrollJob?.cancel()
-                    karooSystem.dispatch(ShowMapPage(zoom = false))
+                    try {
+                        karooSystem.dispatch(ShowMapPage(zoom = false))
+                    } catch (e: Exception) {
+                        Log.e(TAG, "dispatch ShowMapPage failed", e)
+                    }
                 }
             }
             ScrollState.INACTIVE -> {
                 if (dist < config.nearCueDistanceM) {
                     stateBeforeCue = ScrollState.INACTIVE
                     scrollState = ScrollState.NEAR_CUE
-                    karooSystem.dispatch(ShowMapPage(zoom = false))
+                    try {
+                        karooSystem.dispatch(ShowMapPage(zoom = false))
+                    } catch (e: Exception) {
+                        Log.e(TAG, "dispatch ShowMapPage failed", e)
+                    }
                 }
             }
             ScrollState.NEAR_CUE -> {
-                if (dist > TURN_DETECTED_THRESHOLD_M && lastDistanceToTurn < config.nearCueDistanceM) {
+                if (dist > config.nearCueDistanceM * 6 && lastDistanceToTurn < config.nearCueDistanceM) {
                     Log.d(TAG, "Turn completed → POST_TURN")
                     odometerAtTurn = currentOdometer
                     scrollState = ScrollState.POST_TURN
@@ -209,8 +223,12 @@ class AutoScrollController(
         scrollJob = scope.launch {
             while (true) {
                 delay(config.dwellMs.coerceAtLeast(1000L))
-                if (scrollState == ScrollState.SCROLLING) {
-                    karooSystem.dispatch(PerformHardwareAction.TopRightPress)
+                if (scrollState == ScrollState.SCROLLING && pages.size > 1) {
+                    try {
+                        karooSystem.dispatch(PerformHardwareAction.TopRightPress)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "dispatch TopRightPress failed", e)
+                    }
                 }
             }
         }
@@ -226,18 +244,22 @@ class AutoScrollController(
         } else {
             listOf(PlayBeepPattern.Tone(frequency = 800, durationMs = 200))
         }
-        karooSystem.dispatch(
-            InRideAlert(
-                id = "autoloop_toggle_${System.currentTimeMillis()}",
-                icon = R.drawable.ic_autoloop,
-                title = context.getString(if (enabled) R.string.alert_scroll_on else R.string.alert_scroll_off),
-                detail = null,
-                autoDismissMs = 2_000L,
-                backgroundColor = if (enabled) R.color.alert_on_background else R.color.alert_off_background,
-                textColor = R.color.alert_text
+        try {
+            karooSystem.dispatch(
+                InRideAlert(
+                    id = "autoloop_toggle_${System.currentTimeMillis()}",
+                    icon = R.drawable.ic_autoloop,
+                    title = context.getString(if (enabled) R.string.alert_scroll_on else R.string.alert_scroll_off),
+                    detail = null,
+                    autoDismissMs = 2_000L,
+                    backgroundColor = if (enabled) R.color.alert_on_background else R.color.alert_off_background,
+                    textColor = R.color.alert_text
+                )
             )
-        )
-        karooSystem.dispatch(PlayBeepPattern(tones = tones))
+            karooSystem.dispatch(PlayBeepPattern(tones = tones))
+        } catch (e: Exception) {
+            Log.e(TAG, "dispatch notify failed", e)
+        }
     }
 
     fun stop() {
