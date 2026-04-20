@@ -3,9 +3,24 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+import java.util.Properties
+
+val localProps = Properties().apply {
+    rootProject.file("local.properties").inputStream().use { load(it) }
+}
+
 android {
     namespace = "com.example.autoloopkaroo"
     compileSdk = 34
+
+    signingConfigs {
+        create("release") {
+            storeFile = file(localProps["signing.storeFile"] as String)
+            storePassword = localProps["signing.storePassword"] as String
+            keyAlias = localProps["signing.keyAlias"] as String
+            keyPassword = localProps["signing.keyPassword"] as String
+        }
+    }
 
     defaultConfig {
         applicationId = "com.example.autoloopkaroo"
@@ -20,6 +35,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
