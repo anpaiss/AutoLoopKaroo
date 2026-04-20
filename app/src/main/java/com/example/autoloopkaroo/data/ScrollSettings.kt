@@ -15,7 +15,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "au
 
 const val DEFAULT_DWELL_MS = 5_000L
 const val DEFAULT_NEAR_CUE_M = 25f
-const val DEFAULT_POST_TURN_M = 10f
+const val DEFAULT_POST_TURN_M = 25f
 
 data class ScrollConfig(
     val isEnabled: Boolean = false,
