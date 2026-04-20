@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 
 private const val TAG = "AutoScrollController"
-private const val TURN_DETECTED_THRESHOLD_M = 150.0
 
 enum class ScrollState { INACTIVE, SCROLLING, NEAR_CUE, POST_TURN }
 
@@ -177,7 +176,7 @@ class AutoScrollController(
                 }
             }
             ScrollState.NEAR_CUE -> {
-                if (dist > TURN_DETECTED_THRESHOLD_M && lastDistanceToTurn < config.nearCueDistanceM) {
+                if (dist > config.nearCueDistanceM * 6 && lastDistanceToTurn < config.nearCueDistanceM) {
                     Log.d(TAG, "Turn completed → POST_TURN")
                     odometerAtTurn = currentOdometer
                     scrollState = ScrollState.POST_TURN
