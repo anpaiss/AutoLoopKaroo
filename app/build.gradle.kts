@@ -42,6 +42,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -49,6 +50,16 @@ android {
 
     buildFeatures {
         compose = true
+    }
+}
+
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        variant.outputs.forEach { output ->
+            val versionName = output.versionName.orNull ?: "unknown"
+            (output as? com.android.build.api.variant.impl.VariantOutputImpl)
+                ?.outputFileName?.set("AutoLoopKaroo-${versionName}.apk")
+        }
     }
 }
 
