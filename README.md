@@ -89,8 +89,21 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## Screenshots
 
-<img width="240" height="400" alt="autoloopCONFIG1" src="https://github.com/user-attachments/assets/36a5fdf5-b0f2-4a3a-b853-0a301925f71e" /> <img width="240" height="400" alt="autoloopCONFIG2" src="https://github.com/user-attachments/assets/bc60666e-d334-4cf1-83d4-450d0863a1fe" />
-<img width="240" height="400" alt="autoloopON" src="https://github.com/user-attachments/assets/8354d8c4-717c-4083-9853-59ba82d8bea7" /> <img width="240" height="400" alt="autoloopOFF" src="https://github.com/user-attachments/assets/70fad57b-43f0-4aee-9340-37add7d03cbb" />
+<table>
+  <tr>
+    <td><img width="240" height="400" alt="autoloopCONFIG1" src="https://github.com/user-attachments/assets/36a5fdf5-b0f2-4a3a-b853-0a301925f71e" /></td>
+    <td> <img width="240" height="400" alt="autoloopCONFIG2" src="https://github.com/user-attachments/assets/bc60666e-d334-4cf1-83d4-450d0863a1fe" /></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td><img width="240" height="400" alt="autoloopON" src="https://github.com/user-attachments/assets/8354d8c4-717c-4083-9853-59ba82d8bea7" /></td>
+    <td>  <img width="240" height="400" alt="autoloopOFF" src="https://github.com/user-attachments/assets/70fad57b-43f0-4aee-9340-37add7d03cbb" /></td>
+  </tr>
+</table>
+
+
 
 
 
