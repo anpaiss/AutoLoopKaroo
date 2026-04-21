@@ -1,3 +1,5 @@
+![Total Downloads](https://img.shields.io/github/downloads/anpaiss/AutoLoopKaroo/total?color=blue)
+![Latest Release](https://img.shields.io/github/v/release/anpaiss/AutoLoopKaroo)
 # Auto Loop Karoo
 
 A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatically scrolls through your ride data pages — so you can focus on riding.
