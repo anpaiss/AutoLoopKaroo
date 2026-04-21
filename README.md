@@ -1,3 +1,4 @@
+![Build Status](https://github.com/TUO_UTENTE/TUA_REPO/actions/workflows/NOME_WORKFLOW.yml/badge.svg)
 # Auto Loop Karoo
 
 A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatically scrolls through your ride data pages — so you can focus on riding.
