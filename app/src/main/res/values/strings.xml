@@ -6,13 +6,14 @@
     <string name="config_title">Auto Loop Karoo</string>
     <string name="config_page_label">Page %d</string>
     <string name="config_seconds_suffix">s</string>
+    <string name="config_meters_suffix">m</string>
     <string name="config_toggle_label">Auto Scroll</string>
     <string name="config_toggle_hint">Scroll starts automatically when a ride begins.</string>
     <string name="config_dwell_title">Time per page</string>
+    <string name="config_skip_label">Skip</string>
+    <string name="config_near_cue_distance_title">Map switch distance</string>
+    <string name="config_post_turn_title">Resume distance (after turn)</string>
     <string name="datatype_name">Auto Scroll</string>
     <string name="datatype_desc">Auto-scroll pages status</string>
-    <string name="config_near_cue_title">Map switch distance (near turn)</string>
-    <string name="config_post_turn_title">Resume distance (after turn)</string>
-    <string name="config_meters_suffix">m</string>
     <string name="config_save">Save</string>
 </resources>
