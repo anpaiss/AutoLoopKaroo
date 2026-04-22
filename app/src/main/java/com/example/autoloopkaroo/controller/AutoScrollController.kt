@@ -27,6 +27,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.isActive
 
 private const val TAG = "AutoScrollController"
 
@@ -52,6 +53,8 @@ class AutoScrollController(
     private var lastDistanceToTurn = Double.MAX_VALUE
     private var odometerAtTurn = 0.0
     private var currentOdometer = 0.0
+    private var currentSpeedMs = 0f
+    private var nearCueJob: Job? = null
 
     private val consumerIds = mutableListOf<String>()
     private var navConsumerIds = mutableListOf<String>()
@@ -66,7 +69,6 @@ class AutoScrollController(
                 val enabledChanged = cfg.isEnabled != config.isEnabled
                 config = cfg
                 if (enabledChanged) {
-                    // Only notify and act if ride is active
                     if (rideActive) {
                         if (cfg.isEnabled && scrollState == ScrollState.INACTIVE) {
                             enterScrolling()
@@ -74,7 +76,6 @@ class AutoScrollController(
                             enterInactive()
                         }
                     } else {
-                        // No ride: just notify user of the setting change
                         notifyToggle(cfg.isEnabled)
                     }
                 }
@@ -95,6 +96,7 @@ class AutoScrollController(
                     pauseNavigationStreams()
                     if (scrollState != ScrollState.INACTIVE) {
                         scrollJob?.cancel()
+                        nearCueJob?.cancel()
                         scrollState = ScrollState.INACTIVE
                         stateBeforeCue = ScrollState.INACTIVE
                         scope.launch { notifyToggle(false) }
@@ -115,6 +117,16 @@ class AutoScrollController(
 
     private fun subscribeToNavigationStreams() {
         if (navConsumerIds.isNotEmpty()) return
+
+        navConsumerIds += karooSystem.addConsumer(
+            OnStreamState.StartStreaming(DataType.Type.SPEED)
+        ) { event: OnStreamState ->
+            val state = event.state
+            if (state is StreamState.Streaming) {
+                val speedMs = state.dataPoint.values[DataType.Field.SPEED] ?: return@addConsumer
+                currentSpeedMs = speedMs.toFloat()
+            }
+        }
 
         navConsumerIds += karooSystem.addConsumer(
             OnStreamState.StartStreaming(DataType.Type.DISTANCE_TO_NEXT_TURN)
@@ -147,16 +159,19 @@ class AutoScrollController(
         navConsumerIds.forEach { karooSystem.removeConsumer(it) }
         navConsumerIds.clear()
         lastDistanceToTurn = Double.MAX_VALUE
+        currentSpeedMs = 0f
     }
 
     private fun onDistanceToTurn(dist: Double) {
+        val threshold = config.effectiveNearCueDistanceM(currentSpeedMs).toDouble()
         when (scrollState) {
             ScrollState.SCROLLING -> {
-                if (dist < config.nearCueDistanceM) {
-                    Log.d(TAG, "Near cue at ${dist}m → map")
+                if (dist < threshold) {
+                    Log.d(TAG, "Near cue at ${dist}m (threshold=${threshold}m) → map")
                     stateBeforeCue = ScrollState.SCROLLING
                     scrollState = ScrollState.NEAR_CUE
                     scrollJob?.cancel()
+                    startNearCueTimeout()
                     try {
                         karooSystem.dispatch(ShowMapPage(zoom = false))
                     } catch (e: Exception) {
@@ -165,9 +180,10 @@ class AutoScrollController(
                 }
             }
             ScrollState.INACTIVE -> {
-                if (dist < config.nearCueDistanceM) {
+                if (dist < threshold) {
                     stateBeforeCue = ScrollState.INACTIVE
                     scrollState = ScrollState.NEAR_CUE
+                    startNearCueTimeout()
                     try {
                         karooSystem.dispatch(ShowMapPage(zoom = false))
                     } catch (e: Exception) {
@@ -176,8 +192,9 @@ class AutoScrollController(
                 }
             }
             ScrollState.NEAR_CUE -> {
-                if (dist > config.nearCueDistanceM * 6 && lastDistanceToTurn < config.nearCueDistanceM) {
+                if (dist > threshold && lastDistanceToTurn < threshold) {
                     Log.d(TAG, "Turn completed → POST_TURN")
+                    nearCueJob?.cancel()
                     odometerAtTurn = currentOdometer
                     scrollState = ScrollState.POST_TURN
                 }
@@ -187,22 +204,30 @@ class AutoScrollController(
         lastDistanceToTurn = dist
     }
 
-    private fun onPostTurnComplete() {
-        Log.d(TAG, "20m past turn → back to $stateBeforeCue")
-        when (stateBeforeCue) {
-            ScrollState.SCROLLING -> enterScrolling()
-            else -> {
-                scrollState = ScrollState.INACTIVE
+    private fun startNearCueTimeout() {
+        nearCueJob?.cancel()
+        nearCueJob = scope.launch {
+            delay(60_000L)
+            if (isActive && scrollState == ScrollState.NEAR_CUE) {
+                Log.w(TAG, "NEAR_CUE timeout → forcing POST_TURN")
+                odometerAtTurn = currentOdometer
+                scrollState = ScrollState.POST_TURN
             }
         }
     }
 
-    // Called from MainActivity via DataStore toggle
+    private fun onPostTurnComplete() {
+        Log.d(TAG, "Post-turn distance reached → back to $stateBeforeCue")
+        when (stateBeforeCue) {
+            ScrollState.SCROLLING -> enterScrolling()
+            else -> scrollState = ScrollState.INACTIVE
+        }
+    }
+
     fun toggle() {
         scope.launch {
             val newEnabled = !config.isEnabled
             context.saveScrollEnabled(newEnabled)
-            // config flow will fire and handle the rest
         }
     }
 
@@ -222,7 +247,12 @@ class AutoScrollController(
         scrollJob?.cancel()
         scrollJob = scope.launch {
             while (true) {
-                delay(config.dwellMs.coerceAtLeast(1000L))
+                val dwell = config.dwellForPage(currentPageIndex)
+                if (dwell == 0L) {
+                    delay(300L)
+                } else {
+                    delay(dwell.coerceAtLeast(1000L))
+                }
                 if (scrollState == ScrollState.SCROLLING && pages.size > 1) {
                     try {
                         karooSystem.dispatch(PerformHardwareAction.TopRightPress)
@@ -264,6 +294,7 @@ class AutoScrollController(
 
     fun stop() {
         scrollJob?.cancel()
+        nearCueJob?.cancel()
         navConsumerIds.forEach { karooSystem.removeConsumer(it) }
         navConsumerIds.clear()
         consumerIds.forEach { karooSystem.removeConsumer(it) }

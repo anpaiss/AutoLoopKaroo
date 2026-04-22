@@ -8,13 +8,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -24,6 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -33,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.autoloopkaroo.data.MAX_PAGES
 import com.example.autoloopkaroo.data.ScrollConfig
 import com.example.autoloopkaroo.data.saveScrollConfig
 import com.example.autoloopkaroo.data.saveScrollEnabled
@@ -57,20 +61,30 @@ class MainActivity : ComponentActivity() {
 fun ConfigScreen(context: android.content.Context) {
     val scope = rememberCoroutineScope()
     val savedConfig by context.scrollConfigFlow().collectAsState(initial = ScrollConfig())
-    var localDwellSec by remember(savedConfig) {
-        mutableFloatStateOf((savedConfig.dwellMs / 1000f))
+
+    val localPageDwells = remember(savedConfig) {
+        mutableStateListOf(*Array(MAX_PAGES) { i ->
+            (savedConfig.dwellForPage(i) / 1000f)
+        })
+    }
+    var localSpeedSensitive by remember(savedConfig) {
+        mutableStateOf(savedConfig.useSpeedSensitive)
     }
     var localNearCueM by remember(savedConfig) {
         mutableFloatStateOf(savedConfig.nearCueDistanceM)
+    }
+    var localNearCueSec by remember(savedConfig) {
+        mutableFloatStateOf(savedConfig.nearCueSeconds)
+    }
+    var localMinNearCueM by remember(savedConfig) {
+        mutableFloatStateOf(savedConfig.minNearCueDistanceM)
     }
     var localPostTurnM by remember(savedConfig) {
         mutableFloatStateOf(savedConfig.postTurnDistanceM)
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(title = { Text(stringResource(R.string.config_title)) })
-        }
+        topBar = { TopAppBar(title = { Text(stringResource(R.string.config_title)) }) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -80,7 +94,7 @@ fun ConfigScreen(context: android.content.Context) {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Toggle auto-scroll
+            // ── Auto Scroll toggle ──────────────────────────────────────────
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -95,72 +109,155 @@ fun ConfigScreen(context: android.content.Context) {
                 )
                 Switch(
                     checked = savedConfig.isEnabled,
-                    onCheckedChange = { enabled ->
-                        scope.launch { context.saveScrollEnabled(enabled) }
-                    }
+                    onCheckedChange = { scope.launch { context.saveScrollEnabled(it) } }
                 )
             }
-
             Text(
                 text = stringResource(R.string.config_toggle_hint),
                 fontSize = 13.sp,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
+            // ── Time per page ───────────────────────────────────────────────
             HorizontalDivider()
-
             Text(
                 text = stringResource(R.string.config_dwell_title),
                 fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
             )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Slider(
-                    value = localDwellSec,
-                    onValueChange = { localDwellSec = it },
-                    valueRange = 1f..30f,
-                    steps = 28,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(text = "${localDwellSec.toInt()}${stringResource(R.string.config_seconds_suffix)}")
+            for (i in 0 until MAX_PAGES) {
+                val dwellSec = localPageDwells[i]
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.config_page_label, i + 1),
+                        fontSize = 13.sp,
+                        modifier = Modifier.padding(end = 4.dp)
+                    )
+                    Slider(
+                        value = dwellSec,
+                        onValueChange = { localPageDwells[i] = it },
+                        valueRange = 0f..30f,
+                        steps = 29,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = if (dwellSec == 0f)
+                            stringResource(R.string.config_skip_label)
+                        else
+                            "${dwellSec.toInt()}${stringResource(R.string.config_seconds_suffix)}",
+                        fontSize = 13.sp
+                    )
+                }
             }
 
+            // ── Turn detection mode ─────────────────────────────────────────
             HorizontalDivider()
-
             Text(
-                text = stringResource(R.string.config_near_cue_title),
+                text = stringResource(R.string.config_near_cue_mode_title),
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.padding(top = 8.dp)
             )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Slider(
-                    value = localNearCueM,
-                    onValueChange = { localNearCueM = it },
-                    valueRange = 10f..250f,
-                    steps = 239,
-                    modifier = Modifier.weight(1f)
+                RadioButton(
+                    selected = !localSpeedSensitive,
+                    onClick = { localSpeedSensitive = false }
                 )
-                Text(text = "${localNearCueM.toInt()}${stringResource(R.string.config_meters_suffix)}")
+                Text(
+                    text = stringResource(R.string.config_near_cue_fixed_label),
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = localSpeedSensitive,
+                    onClick = { localSpeedSensitive = true }
+                )
+                Text(
+                    text = stringResource(R.string.config_near_cue_speed_label),
+                    modifier = Modifier.padding(start = 4.dp)
+                )
             }
 
-            HorizontalDivider()
+            if (!localSpeedSensitive) {
+                Text(
+                    text = stringResource(R.string.config_near_cue_distance_title),
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Slider(
+                        value = localNearCueM,
+                        onValueChange = { localNearCueM = it },
+                        valueRange = 10f..250f,
+                        steps = 239,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(text = "${localNearCueM.toInt()}${stringResource(R.string.config_meters_suffix)}")
+                }
+            } else {
+                Text(
+                    text = stringResource(R.string.config_near_cue_seconds_title),
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Slider(
+                        value = localNearCueSec,
+                        onValueChange = { localNearCueSec = it },
+                        valueRange = 1f..15f,
+                        steps = 13,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(text = "${localNearCueSec.toInt()}${stringResource(R.string.config_seconds_suffix)}")
+                }
 
+                Text(
+                    text = stringResource(R.string.config_near_cue_min_title),
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Slider(
+                        value = localMinNearCueM,
+                        onValueChange = { localMinNearCueM = it },
+                        valueRange = 5f..50f,
+                        steps = 44,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(text = "${localMinNearCueM.toInt()}${stringResource(R.string.config_meters_suffix)}")
+                }
+            }
+
+            // ── Resume distance ─────────────────────────────────────────────
+            HorizontalDivider()
             Text(
                 text = stringResource(R.string.config_post_turn_title),
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.padding(top = 8.dp)
             )
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -176,15 +273,19 @@ fun ConfigScreen(context: android.content.Context) {
                 Text(text = "${localPostTurnM.toInt()}${stringResource(R.string.config_meters_suffix)}")
             }
 
+            // ── Save ────────────────────────────────────────────────────────
             Button(
                 onClick = {
                     scope.launch {
                         context.saveScrollConfig(
                             ScrollConfig(
                                 isEnabled = savedConfig.isEnabled,
-                                dwellMs = (localDwellSec * 1000).toLong(),
+                                pageDwellMs = localPageDwells.map { (it * 1000).toLong() },
                                 nearCueDistanceM = localNearCueM,
-                                postTurnDistanceM = localPostTurnM
+                                postTurnDistanceM = localPostTurnM,
+                                useSpeedSensitive = localSpeedSensitive,
+                                nearCueSeconds = localNearCueSec,
+                                minNearCueDistanceM = localMinNearCueM
                             )
                         )
                     }
