@@ -110,7 +110,12 @@ class AutoScrollController(
 
         consumerIds += karooSystem.addConsumer { event: ActiveRidePage ->
             val idx = pages.indexOf(event.page)
-            if (idx >= 0) currentPageIndex = idx
+            if (idx >= 0) {
+                currentPageIndex = idx
+                if (scrollState == ScrollState.SCROLLING) {
+                    scope.launch { scheduleNextScroll() }
+                }
+            }
         }
     }
 
@@ -187,7 +192,18 @@ class AutoScrollController(
                     scrollState = ScrollState.POST_TURN
                 }
             }
-            ScrollState.POST_TURN -> {}
+            ScrollState.POST_TURN -> {
+                if (dist < threshold) {
+                    Log.d(TAG, "Near cue during POST_TURN at ${dist}m → map priority")
+                    scrollState = ScrollState.NEAR_CUE
+                    startNearCueTimeout()
+                    try {
+                        karooSystem.dispatch(ShowMapPage(zoom = false))
+                    } catch (e: Exception) {
+                        Log.e(TAG, "dispatch ShowMapPage failed", e)
+                    }
+                }
+            }
         }
         lastDistanceToTurn = dist
     }
@@ -222,7 +238,7 @@ class AutoScrollController(
     private fun enterScrolling() {
         scrollState = ScrollState.SCROLLING
         notifyToggle(true)
-        startScrollLoop()
+        scheduleNextScroll()
     }
 
     private fun enterInactive() {
@@ -231,37 +247,24 @@ class AutoScrollController(
         notifyToggle(false)
     }
 
-    private fun startScrollLoop() {
+    private fun scheduleNextScroll() {
         scrollJob?.cancel()
         scrollJob = scope.launch {
-            while (true) {
-                val dwell = config.dwellForPage(currentPageIndex)
-                if (dwell == 0L) {
-                    delay(300L)
-                } else {
-                    delay(dwell.coerceAtLeast(1000L))
-                }
-                if (scrollState == ScrollState.SCROLLING && pages.size > 1) {
-                    try {
-                        karooSystem.dispatch(PerformHardwareAction.TopRightPress)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "dispatch TopRightPress failed", e)
-                    }
+            val dwell = config.dwellForPage(currentPageIndex)
+            val wait = if (dwell == 0L) 50L else dwell.coerceAtLeast(1000L)
+            delay(wait)
+            if (isActive && scrollState == ScrollState.SCROLLING && pages.size > 1) {
+                try {
+                    karooSystem.dispatch(PerformHardwareAction.TopRightPress)
+                } catch (e: Exception) {
+                    Log.e(TAG, "dispatch TopRightPress failed", e)
+                    scheduleNextScroll()
                 }
             }
         }
     }
 
     private fun notifyToggle(enabled: Boolean) {
-        val tones: List<PlayBeepPattern.Tone> = if (enabled) {
-            listOf(
-                PlayBeepPattern.Tone(frequency = 1000, durationMs = 80),
-                PlayBeepPattern.Tone(frequency = null, durationMs = 40),
-                PlayBeepPattern.Tone(frequency = 1500, durationMs = 120)
-            )
-        } else {
-            listOf(PlayBeepPattern.Tone(frequency = 800, durationMs = 200))
-        }
         try {
             karooSystem.dispatch(
                 InRideAlert(
@@ -274,7 +277,18 @@ class AutoScrollController(
                     textColor = R.color.alert_text
                 )
             )
-            karooSystem.dispatch(PlayBeepPattern(tones = tones))
+            if (config.soundEnabled) {
+                val tones: List<PlayBeepPattern.Tone> = if (enabled) {
+                    listOf(
+                        PlayBeepPattern.Tone(frequency = 1000, durationMs = 80),
+                        PlayBeepPattern.Tone(frequency = null, durationMs = 40),
+                        PlayBeepPattern.Tone(frequency = 1500, durationMs = 120)
+                    )
+                } else {
+                    listOf(PlayBeepPattern.Tone(frequency = 800, durationMs = 200))
+                }
+                karooSystem.dispatch(PlayBeepPattern(tones = tones))
+            }
         } catch (e: Exception) {
             Log.e(TAG, "dispatch notify failed", e)
         }

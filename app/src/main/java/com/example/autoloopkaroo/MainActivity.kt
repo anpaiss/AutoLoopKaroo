@@ -71,6 +71,9 @@ fun ConfigScreen(context: android.content.Context) {
     var localPostTurnM by remember(savedConfig) {
         mutableFloatStateOf(savedConfig.postTurnDistanceM)
     }
+    var localSoundEnabled by remember(savedConfig) {
+        androidx.compose.runtime.mutableStateOf(savedConfig.soundEnabled)
+    }
 
     Scaffold(
         topBar = { TopAppBar(title = { Text(stringResource(R.string.config_title)) }) }
@@ -106,6 +109,23 @@ fun ConfigScreen(context: android.content.Context) {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.config_sound_label),
+                    fontSize = 16.sp
+                )
+                Switch(
+                    checked = localSoundEnabled,
+                    onCheckedChange = { localSoundEnabled = it }
+                )
+            }
+
             HorizontalDivider()
             Text(
                 text = stringResource(R.string.config_dwell_title),
@@ -127,8 +147,8 @@ fun ConfigScreen(context: android.content.Context) {
                     Slider(
                         value = dwellSec,
                         onValueChange = { localPageDwells[i] = it },
-                        valueRange = 0f..30f,
-                        steps = 29,
+                        valueRange = 0f..60f,
+                        steps = 11,
                         modifier = Modifier.weight(1f)
                     )
                     Text(
@@ -191,7 +211,8 @@ fun ConfigScreen(context: android.content.Context) {
                                 isEnabled = savedConfig.isEnabled,
                                 pageDwellMs = localPageDwells.map { (it * 1000).toLong() },
                                 nearCueDistanceM = localNearCueM,
-                                postTurnDistanceM = localPostTurnM
+                                postTurnDistanceM = localPostTurnM,
+                                soundEnabled = localSoundEnabled
                             )
                         )
                     }

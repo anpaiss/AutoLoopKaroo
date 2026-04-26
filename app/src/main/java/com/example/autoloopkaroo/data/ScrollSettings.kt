@@ -22,7 +22,8 @@ data class ScrollConfig(
     val isEnabled: Boolean = false,
     val pageDwellMs: List<Long> = emptyList(),
     val nearCueDistanceM: Float = DEFAULT_NEAR_CUE_M,
-    val postTurnDistanceM: Float = DEFAULT_POST_TURN_M
+    val postTurnDistanceM: Float = DEFAULT_POST_TURN_M,
+    val soundEnabled: Boolean = true
 ) {
     fun dwellForPage(index: Int): Long =
         pageDwellMs.getOrElse(index) { DEFAULT_DWELL_MS }
@@ -33,6 +34,7 @@ object PrefsKeys {
     val PAGE_DWELL_MS = stringPreferencesKey("page_dwell_ms")
     val NEAR_CUE_DISTANCE_M = floatPreferencesKey("near_cue_distance_m")
     val POST_TURN_DISTANCE_M = floatPreferencesKey("post_turn_distance_m")
+    val SOUND_ENABLED = booleanPreferencesKey("sound_enabled")
 }
 
 private fun String.toPageDwellList(): List<Long> =
@@ -46,7 +48,8 @@ fun Context.scrollConfigFlow(): Flow<ScrollConfig> =
             isEnabled = prefs[PrefsKeys.IS_ENABLED] ?: false,
             pageDwellMs = prefs[PrefsKeys.PAGE_DWELL_MS]?.toPageDwellList() ?: emptyList(),
             nearCueDistanceM = prefs[PrefsKeys.NEAR_CUE_DISTANCE_M] ?: DEFAULT_NEAR_CUE_M,
-            postTurnDistanceM = prefs[PrefsKeys.POST_TURN_DISTANCE_M] ?: DEFAULT_POST_TURN_M
+            postTurnDistanceM = prefs[PrefsKeys.POST_TURN_DISTANCE_M] ?: DEFAULT_POST_TURN_M,
+            soundEnabled = prefs[PrefsKeys.SOUND_ENABLED] ?: true
         )
     }
 
@@ -60,5 +63,6 @@ suspend fun Context.saveScrollConfig(config: ScrollConfig) {
         prefs[PrefsKeys.PAGE_DWELL_MS] = config.pageDwellMs.toPageDwellString()
         prefs[PrefsKeys.NEAR_CUE_DISTANCE_M] = config.nearCueDistanceM
         prefs[PrefsKeys.POST_TURN_DISTANCE_M] = config.postTurnDistanceM
+        prefs[PrefsKeys.SOUND_ENABLED] = config.soundEnabled
     }
 }
