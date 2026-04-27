@@ -8,32 +8,33 @@ A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatic
 
 ## Features
 
-- **Auto-scroll** cycles through all pages in your active ride profile at a configurable interval
-- **Starts automatically** when you begin recording a ride
-- **Stops automatically** when you pause or end the ride
-- **Navigation-aware**: switches to the map page when approaching a turn, then resumes scrolling after the turn — both distances are configurable
-- **Toggle on/off** from the app settings at any time
-- **Audible feedback** (beep + on-screen alert) when auto-scroll is enabled or disabled
+- **Auto-scroll** cycles through all pages in your active ride profile at a configurable interval.
+- **Page Skipping**: Set a page duration to **0 seconds** to skip it during the loop.
+- **Starts automatically** when you begin recording a ride.
+- **Stops automatically** when you pause or end the ride.
+- **Navigation-aware**: Switches to the map page when approaching a turn, then resumes scrolling after the turn. Distances are fully configurable.
+- **Toggle on/off** from the app settings or via **Control Center Bonus Actions**.
+- **Audible feedback** (beep + on-screen alert) when auto-scroll is toggled.
 
 ---
 
 ## Requirements
 
-- Hammerhead Karoo 3
+- Hammerhead Karoo 3 (Hardware ID: k24)
 - Karoo firmware with extension support
 
 ---
 
 ## Installation
 
-1. Download the latest APK from [Releases](https://github.com/anpaiss/AutoLoopKaroo/releases)
+1. Download the latest APK (Release Candidate 0.9.5+) from [Releases](https://github.com/anpaiss/AutoLoopKaroo/releases)
 2. Install via ADB:
    ```bash
    adb install AutoLoopKaroo.apk
    ```
-   Or transfer the APK to the Karoo via USB and install with a file manager
+   Or transfer the APK to the Karoo via USB and install with a file manager.
 
-No additional profile configuration is required — the extension starts automatically with the Karoo AppStore.
+*Note: After installation, it is recommended to reboot the Karoo to ensure the extension service is fully registered.*
 
 ---
 
@@ -43,10 +44,11 @@ Open the **Auto Loop Karoo** app on your Karoo:
 
 | Setting | Description |
 |---|---|
-| **Auto Scroll** toggle | Enable or disable auto-scrolling |
-| **Time per page** | Seconds to display each page before advancing (1–30 s, default 5 s) |
-| **Switch-to-map distance** | How many metres before a turn to switch to the map page (10–250 m, default 25 m) |
-| **Resume distance** | How many metres after a turn before auto-scroll resumes (10–250 m, default 10 m) |
+| **Auto Scroll** toggle | Enable or disable auto-scrolling globally. |
+| **Time per page** | Seconds to display each page. Set to **Skip** (0s) to ignore a page in the loop. |
+| **Sound Feedback** | Toggle audible beeps when enabling/disabling scroll. |
+| **Switch-to-map distance** | Distance before a turn to switch to the map page (10–250 m). |
+| **Resume distance** | Distance after a turn before auto-scroll resumes (10–250 m). |
 
 Changes take effect immediately — no restart needed.
 
@@ -56,14 +58,14 @@ Changes take effect immediately — no restart needed.
 
 ```
 Ride starts (Recording)
-    └─ Auto-scroll enabled? ──Yes──► Start cycling pages every N seconds
-                             │
-                             No ──► Wait (toggle from app to enable)
+    └─ Auto-scroll enabled? ──Yes──► Start cycling pages based on per-page dwell time
+                             │       (Skips pages set to 0s)
+                             No ──► Wait (toggle from app or Control Center)
 
-Approaching turn (within switch-to-map distance, 10–250 m, default 25 m)
+Approaching turn (within switch-to-map distance, default 25 m)
     └─► Switch to map page automatically
 
-Past the turn by resume distance (10–250 m, default 10 m)
+Past the turn by resume distance (default 10 m)
     └─► Resume page scrolling
 
 Ride paused or ended
@@ -72,16 +74,11 @@ Ride paused or ended
 
 ---
 
-## Building from Source
+## Development Notes
 
-```bash
-git clone https://github.com/anpaiss/AutoLoopKaroo.git
-cd AutoLoopKaroo
-./gradlew assembleDebug
-adb install app/build/outputs/apk/debug/app-debug.apk
-```
-
-**Requirements:** Android Studio / JDK 17+, Android SDK 34.
+- **Target SDK 31**: Aligned with Karoo 3 (Android 12) for maximum stability and input handling.
+- **Extension ID**: `autoloopkaroo` (No dots, as required by Hammerhead SDK).
+- **Bonus Actions**: Triggerable via SRAM AXS buttons, external ANT+ controllers, or the Control Center widget.
 
 ---
 
@@ -104,9 +101,3 @@ MIT License — see [LICENSE](LICENSE) for details.
     <td>  <img width="240" height="400" alt="autoloopOFF" src="https://github.com/user-attachments/assets/70fad57b-43f0-4aee-9340-37add7d03cbb" /></td>
   </tr>
 </table>
-
-
-
-
-
-
