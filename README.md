@@ -90,8 +90,8 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 <table>
   <tr>
-    <td><img width="240" height="400" alt="autoloopCONFIG1" src="https://github.com/user-attachments/assets/36a5fdf5-b0f2-4a3a-b853-0a301925f71e" /></td>
-    <td> <img width="240" height="400" alt="autoloopCONFIG2" src="https://github.com/user-attachments/assets/bc60666e-d334-4cf1-83d4-450d0863a1fe" /></td>
+    <td><img width="240" height="400" alt="autoloopCONFIG1" src="https://github.com/user-attachments/assets/636b0540-a781-468c-be6f-ed9d666e9a88" /></td>
+    <td> <img width="240" height="400" alt="beta095-2" src="https://github.com/user-attachments/assets/0b8156fd-43a6-4727-aff6-39d4483eae01" /></td>
   </tr>
 </table>
 
@@ -101,3 +101,6 @@ MIT License — see [LICENSE](LICENSE) for details.
     <td>  <img width="240" height="400" alt="autoloopOFF" src="https://github.com/user-attachments/assets/70fad57b-43f0-4aee-9340-37add7d03cbb" /></td>
   </tr>
 </table>
+
+
+
