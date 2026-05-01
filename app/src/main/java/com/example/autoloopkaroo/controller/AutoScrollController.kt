@@ -53,7 +53,7 @@ class AutoScrollController(
 
     private var currentPageIndex = 0
     private var pages: List<RideProfile.Page> = emptyList()
-    private var config = ScrollConfig()
+    @Volatile private var config = ScrollConfig()
 
     private var scrollJob: Job? = null
     private var nearCueJob: Job? = null
@@ -234,10 +234,15 @@ class AutoScrollController(
     }
 
     fun toggle() {
-        scope.launch {
-            val newEnabled = !config.isEnabled
-            context.saveScrollEnabled(newEnabled)
+        val newEnabled = !config.isEnabled
+        config = config.copy(isEnabled = newEnabled)
+        if (rideActive) {
+            if (newEnabled && scrollState == ScrollState.INACTIVE) enterScrolling()
+            else if (!newEnabled) enterInactive()
+        } else {
+            notifyToggle(newEnabled)
         }
+        scope.launch { context.saveScrollEnabled(newEnabled) }
     }
 
     private fun enterScrolling() {

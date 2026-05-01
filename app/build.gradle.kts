@@ -25,7 +25,7 @@ android {
     defaultConfig {
         applicationId = "com.example.autoloopkaroo"
         minSdk = 31
-        targetSdk = 31
+        targetSdk = 33
         versionCode = 4
         versionName = "0.9.5-beta"
 

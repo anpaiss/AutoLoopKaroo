@@ -57,12 +57,16 @@ suspend fun Context.saveScrollEnabled(enabled: Boolean) {
     dataStore.edit { it[PrefsKeys.IS_ENABLED] = enabled }
 }
 
-suspend fun Context.saveScrollConfig(config: ScrollConfig) {
+suspend fun Context.saveScrollSettings(
+    pageDwellMs: List<Long>,
+    nearCueDistanceM: Float,
+    postTurnDistanceM: Float,
+    soundEnabled: Boolean
+) {
     dataStore.edit { prefs ->
-        prefs[PrefsKeys.IS_ENABLED] = config.isEnabled
-        prefs[PrefsKeys.PAGE_DWELL_MS] = config.pageDwellMs.toPageDwellString()
-        prefs[PrefsKeys.NEAR_CUE_DISTANCE_M] = config.nearCueDistanceM
-        prefs[PrefsKeys.POST_TURN_DISTANCE_M] = config.postTurnDistanceM
-        prefs[PrefsKeys.SOUND_ENABLED] = config.soundEnabled
+        prefs[PrefsKeys.PAGE_DWELL_MS] = pageDwellMs.toPageDwellString()
+        prefs[PrefsKeys.NEAR_CUE_DISTANCE_M] = nearCueDistanceM
+        prefs[PrefsKeys.POST_TURN_DISTANCE_M] = postTurnDistanceM
+        prefs[PrefsKeys.SOUND_ENABLED] = soundEnabled
     }
 }

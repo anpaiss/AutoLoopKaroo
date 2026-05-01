@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
@@ -21,10 +20,12 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -34,13 +35,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.autoloopkaroo.data.DEFAULT_DWELL_MS
+import com.example.autoloopkaroo.data.DEFAULT_NEAR_CUE_M
+import com.example.autoloopkaroo.data.DEFAULT_POST_TURN_M
 import com.example.autoloopkaroo.data.MAX_PAGES
 import com.example.autoloopkaroo.data.ScrollConfig
-import com.example.autoloopkaroo.data.saveScrollConfig
 import com.example.autoloopkaroo.data.saveScrollEnabled
+import com.example.autoloopkaroo.data.saveScrollSettings
 import com.example.autoloopkaroo.data.scrollConfigFlow
 import com.example.autoloopkaroo.ui.theme.AutoLoopKarooTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+
+private const val AUTOSAVE_DEBOUNCE_MS = 500L
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,19 +68,42 @@ fun ConfigScreen(context: android.content.Context) {
     val scope = rememberCoroutineScope()
     val savedConfig by context.scrollConfigFlow().collectAsState(initial = ScrollConfig())
 
-    val localPageDwells = remember(savedConfig) {
-        mutableStateListOf(*Array(MAX_PAGES) { i ->
-            (savedConfig.dwellForPage(i) / 1000f)
-        })
+    val localPageDwells = remember {
+        mutableStateListOf<Float>().apply {
+            repeat(MAX_PAGES) { add(DEFAULT_DWELL_MS / 1000f) }
+        }
     }
-    var localNearCueM by remember(savedConfig) {
-        mutableFloatStateOf(savedConfig.nearCueDistanceM)
+    var localNearCueM by remember { mutableFloatStateOf(DEFAULT_NEAR_CUE_M) }
+    var localPostTurnM by remember { mutableFloatStateOf(DEFAULT_POST_TURN_M) }
+    var localSoundEnabled by remember { mutableStateOf(true) }
+    var initialized by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        val initial = context.scrollConfigFlow().first()
+        repeat(MAX_PAGES) { i ->
+            localPageDwells[i] = initial.dwellForPage(i) / 1000f
+        }
+        localNearCueM = initial.nearCueDistanceM
+        localPostTurnM = initial.postTurnDistanceM
+        localSoundEnabled = initial.soundEnabled
+        initialized = true
     }
-    var localPostTurnM by remember(savedConfig) {
-        mutableFloatStateOf(savedConfig.postTurnDistanceM)
-    }
-    var localSoundEnabled by remember(savedConfig) {
-        androidx.compose.runtime.mutableStateOf(savedConfig.soundEnabled)
+
+    LaunchedEffect(
+        localPageDwells.toList(),
+        localNearCueM,
+        localPostTurnM,
+        localSoundEnabled,
+        initialized
+    ) {
+        if (!initialized) return@LaunchedEffect
+        delay(AUTOSAVE_DEBOUNCE_MS)
+        context.saveScrollSettings(
+            pageDwellMs = localPageDwells.map { (it * 1000).toLong() },
+            nearCueDistanceM = localNearCueM,
+            postTurnDistanceM = localPostTurnM,
+            soundEnabled = localSoundEnabled
+        )
     }
 
     Scaffold(
@@ -201,27 +232,6 @@ fun ConfigScreen(context: android.content.Context) {
                     modifier = Modifier.weight(1f)
                 )
                 Text(text = "${localPostTurnM.toInt()}${stringResource(R.string.config_meters_suffix)}")
-            }
-
-            Button(
-                onClick = {
-                    scope.launch {
-                        context.saveScrollConfig(
-                            ScrollConfig(
-                                isEnabled = savedConfig.isEnabled,
-                                pageDwellMs = localPageDwells.map { (it * 1000).toLong() },
-                                nearCueDistanceM = localNearCueM,
-                                postTurnDistanceM = localPostTurnM,
-                                soundEnabled = localSoundEnabled
-                            )
-                        )
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp)
-            ) {
-                Text(stringResource(R.string.config_save))
             }
         }
     }
