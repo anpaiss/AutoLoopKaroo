@@ -3,6 +3,7 @@ package com.example.autoloopkaroo.controller
 import android.content.Context
 import android.util.Log
 import com.example.autoloopkaroo.R
+import com.example.autoloopkaroo.data.MAX_PAGES
 import com.example.autoloopkaroo.data.ScrollConfig
 import com.example.autoloopkaroo.data.saveScrollEnabled
 import com.example.autoloopkaroo.data.scrollConfigFlow
@@ -31,6 +32,13 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "AutoScrollController"
 
+private const val NEAR_CUE_TIMEOUT_MS = 60_000L
+private const val SKIP_PAGE_DELAY_MS = 50L
+private const val MIN_DWELL_MS = 1_000L
+private const val ALERT_DISMISS_MS = 2_000L
+private const val MAX_DISPATCH_FAILURES = 5
+private const val DISPATCH_RETRY_DELAY_MS = 5_000L
+
 enum class ScrollState { INACTIVE, SCROLLING, NEAR_CUE, POST_TURN }
 
 class AutoScrollController(
@@ -56,7 +64,8 @@ class AutoScrollController(
     private var currentOdometer = 0.0
 
     private val consumerIds = mutableListOf<String>()
-    private var navConsumerIds = mutableListOf<String>()
+    private val navConsumerIds = mutableListOf<String>()
+    @Volatile private var dispatchFailures = 0
 
     @OptIn(FlowPreview::class)
     fun start() {
@@ -98,14 +107,14 @@ class AutoScrollController(
                         nearCueJob?.cancel()
                         scrollState = ScrollState.INACTIVE
                         stateBeforeCue = ScrollState.INACTIVE
-                        scope.launch { notifyToggle(false) }
                     }
                 }
             }
         }
 
         consumerIds += karooSystem.addConsumer { event: ActiveRideProfile ->
-            pages = event.profile.pages.take(10)
+            pages = event.profile.pages.take(MAX_PAGES)
+            currentPageIndex = 0
         }
 
         consumerIds += karooSystem.addConsumer { event: ActiveRidePage ->
@@ -211,7 +220,7 @@ class AutoScrollController(
     private fun startNearCueTimeout() {
         nearCueJob?.cancel()
         nearCueJob = scope.launch {
-            delay(60_000L)
+            delay(NEAR_CUE_TIMEOUT_MS)
             if (isActive && scrollState == ScrollState.NEAR_CUE) {
                 Log.w(TAG, "NEAR_CUE timeout → forcing POST_TURN")
                 odometerAtTurn = currentOdometer
@@ -237,6 +246,7 @@ class AutoScrollController(
 
     private fun enterScrolling() {
         scrollState = ScrollState.SCROLLING
+        dispatchFailures = 0
         notifyToggle(true)
         scheduleNextScroll()
     }
@@ -251,14 +261,24 @@ class AutoScrollController(
         scrollJob?.cancel()
         scrollJob = scope.launch {
             val dwell = config.dwellForPage(currentPageIndex)
-            val wait = if (dwell == 0L) 50L else dwell.coerceAtLeast(1000L)
+            val wait = if (dwell == 0L) SKIP_PAGE_DELAY_MS else dwell.coerceAtLeast(MIN_DWELL_MS)
             delay(wait)
             if (isActive && scrollState == ScrollState.SCROLLING && pages.size > 1) {
                 try {
                     karooSystem.dispatch(PerformHardwareAction.TopRightPress)
+                    dispatchFailures = 0
                 } catch (e: Exception) {
-                    Log.e(TAG, "dispatch TopRightPress failed", e)
-                    scheduleNextScroll()
+                    val attempt = ++dispatchFailures
+                    Log.e(TAG, "dispatch TopRightPress failed (attempt $attempt/$MAX_DISPATCH_FAILURES)", e)
+                    if (attempt >= MAX_DISPATCH_FAILURES) {
+                        Log.e(TAG, "Too many dispatch failures, giving up → INACTIVE")
+                        scrollState = ScrollState.INACTIVE
+                        dispatchFailures = 0
+                        notifyToggle(false)
+                        return@launch
+                    }
+                    delay(DISPATCH_RETRY_DELAY_MS)
+                    if (isActive && scrollState == ScrollState.SCROLLING) scheduleNextScroll()
                 }
             }
         }
@@ -272,7 +292,7 @@ class AutoScrollController(
                     icon = R.drawable.ic_autoloop,
                     title = context.getString(if (enabled) R.string.alert_scroll_on else R.string.alert_scroll_off),
                     detail = null,
-                    autoDismissMs = 2_000L,
+                    autoDismissMs = ALERT_DISMISS_MS,
                     backgroundColor = if (enabled) R.color.alert_on_background else R.color.alert_off_background,
                     textColor = R.color.alert_text
                 )
