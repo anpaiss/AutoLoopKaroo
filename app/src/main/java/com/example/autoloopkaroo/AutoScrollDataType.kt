@@ -2,7 +2,7 @@ package com.example.autoloopkaroo
 
 import android.content.Context
 import android.widget.RemoteViews
-import com.example.autoloopkaroo.data.scrollConfigFlow
+import com.example.autoloopkaroo.data.appSettingsFlow
 import io.hammerhead.karooext.extension.DataTypeImpl
 import io.hammerhead.karooext.internal.Emitter
 import io.hammerhead.karooext.internal.ViewEmitter
@@ -27,8 +27,8 @@ class AutoScrollDataType(
 
     override fun startStream(emitter: Emitter<StreamState>) {
         val job = streamScope.launch {
-            appContext.scrollConfigFlow()
-                .map { it.isEnabled }
+            appContext.appSettingsFlow()
+                .map { it.settingsFor(it.activeProfileId).isEnabled }
                 .distinctUntilChanged()
                 .collect { enabled ->
                     val value: Double = if (enabled) 1.0 else 0.0
@@ -48,8 +48,8 @@ class AutoScrollDataType(
 
     override fun startView(context: Context, config: ViewConfig, emitter: ViewEmitter) {
         val job = viewScope.launch {
-            appContext.scrollConfigFlow()
-                .map { it.isEnabled }
+            appContext.appSettingsFlow()
+                .map { it.settingsFor(it.activeProfileId).isEnabled }
                 .distinctUntilChanged()
                 .collect { enabled ->
                     val views = RemoteViews(context.packageName, R.layout.datatype_autoscroll)

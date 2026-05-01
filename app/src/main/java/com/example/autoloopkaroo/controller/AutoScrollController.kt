@@ -3,10 +3,12 @@ package com.example.autoloopkaroo.controller
 import android.content.Context
 import android.util.Log
 import com.example.autoloopkaroo.R
+import com.example.autoloopkaroo.data.AppSettings
 import com.example.autoloopkaroo.data.MAX_PAGES
-import com.example.autoloopkaroo.data.ScrollConfig
-import com.example.autoloopkaroo.data.saveScrollEnabled
-import com.example.autoloopkaroo.data.scrollConfigFlow
+import com.example.autoloopkaroo.data.ProfileSettings
+import com.example.autoloopkaroo.data.appSettingsFlow
+import com.example.autoloopkaroo.data.observeProfile
+import com.example.autoloopkaroo.data.setProfileEnabled
 import io.hammerhead.karooext.KarooSystemService
 import io.hammerhead.karooext.models.ActiveRidePage
 import io.hammerhead.karooext.models.ActiveRideProfile
@@ -53,7 +55,11 @@ class AutoScrollController(
 
     private var currentPageIndex = 0
     private var pages: List<RideProfile.Page> = emptyList()
-    @Volatile private var config = ScrollConfig()
+
+    @Volatile private var appSettings = AppSettings()
+    @Volatile private var activeProfileId: String? = null
+    @Volatile private var activeSettings = ProfileSettings()
+    @Volatile private var soundEnabled = true
 
     private var scrollJob: Job? = null
     private var nearCueJob: Job? = null
@@ -73,18 +79,21 @@ class AutoScrollController(
         started = true
 
         scope.launch {
-            context.scrollConfigFlow().debounce(300L).collect { cfg ->
-                val enabledChanged = cfg.isEnabled != config.isEnabled
-                config = cfg
+            context.appSettingsFlow().debounce(300L).collect { next ->
+                val previousEnabled = activeSettings.isEnabled
+                appSettings = next
+                soundEnabled = next.soundEnabled
+                activeSettings = next.settingsFor(activeProfileId)
+                val enabledChanged = activeSettings.isEnabled != previousEnabled
                 if (enabledChanged) {
                     if (rideActive) {
-                        if (cfg.isEnabled && scrollState == ScrollState.INACTIVE) {
+                        if (activeSettings.isEnabled && scrollState == ScrollState.INACTIVE) {
                             enterScrolling()
-                        } else if (!cfg.isEnabled) {
+                        } else if (!activeSettings.isEnabled) {
                             enterInactive()
                         }
                     } else {
-                        notifyToggle(cfg.isEnabled)
+                        notifyToggle(activeSettings.isEnabled)
                     }
                 }
             }
@@ -95,7 +104,7 @@ class AutoScrollController(
                 RideState.Recording -> {
                     rideActive = true
                     subscribeToNavigationStreams()
-                    if (config.isEnabled && scrollState == ScrollState.INACTIVE) {
+                    if (activeSettings.isEnabled && scrollState == ScrollState.INACTIVE) {
                         scope.launch { enterScrolling() }
                     }
                 }
@@ -113,8 +122,27 @@ class AutoScrollController(
         }
 
         consumerIds += karooSystem.addConsumer { event: ActiveRideProfile ->
-            pages = event.profile.pages.take(MAX_PAGES)
+            val profile = event.profile
+            val limitedPages = profile.pages.take(MAX_PAGES)
+            pages = limitedPages
             currentPageIndex = 0
+
+            val previousEnabled = activeSettings.isEnabled
+            activeProfileId = profile.id
+            activeSettings = appSettings.settingsFor(profile.id)
+
+            scope.launch {
+                context.observeProfile(profile.id, profile.name, limitedPages.size)
+            }
+
+            if (rideActive) {
+                val nowEnabled = activeSettings.isEnabled
+                if (nowEnabled && scrollState == ScrollState.INACTIVE) enterScrolling()
+                else if (!nowEnabled && scrollState != ScrollState.INACTIVE) enterInactive()
+                else if (nowEnabled != previousEnabled) {
+                    notifyToggle(nowEnabled)
+                }
+            }
         }
 
         consumerIds += karooSystem.addConsumer { event: ActiveRidePage ->
@@ -152,7 +180,7 @@ class AutoScrollController(
                 currentOdometer = dist
                 if (scrollState == ScrollState.POST_TURN) {
                     val traveled = currentOdometer - odometerAtTurn
-                    if (traveled >= config.postTurnDistanceM) onPostTurnComplete()
+                    if (traveled >= activeSettings.postTurnDistanceM) onPostTurnComplete()
                 }
             }
         }
@@ -165,7 +193,7 @@ class AutoScrollController(
     }
 
     private fun onDistanceToTurn(dist: Double) {
-        val threshold = config.nearCueDistanceM.toDouble()
+        val threshold = activeSettings.nearCueDistanceM.toDouble()
         when (scrollState) {
             ScrollState.SCROLLING -> {
                 if (dist < threshold) {
@@ -234,15 +262,20 @@ class AutoScrollController(
     }
 
     fun toggle() {
-        val newEnabled = !config.isEnabled
-        config = config.copy(isEnabled = newEnabled)
+        val profileId = activeProfileId
+        if (profileId == null) {
+            Log.w(TAG, "Toggle ignored: no active profile yet")
+            return
+        }
+        val newEnabled = !activeSettings.isEnabled
+        activeSettings = activeSettings.copy(isEnabled = newEnabled)
         if (rideActive) {
             if (newEnabled && scrollState == ScrollState.INACTIVE) enterScrolling()
             else if (!newEnabled) enterInactive()
         } else {
             notifyToggle(newEnabled)
         }
-        scope.launch { context.saveScrollEnabled(newEnabled) }
+        scope.launch { context.setProfileEnabled(profileId, newEnabled) }
     }
 
     private fun enterScrolling() {
@@ -261,7 +294,7 @@ class AutoScrollController(
     private fun scheduleNextScroll() {
         scrollJob?.cancel()
         scrollJob = scope.launch {
-            val dwell = config.dwellForPage(currentPageIndex)
+            val dwell = activeSettings.dwellForPage(currentPageIndex)
             val wait = if (dwell == 0L) SKIP_PAGE_DELAY_MS else dwell.coerceAtLeast(MIN_DWELL_MS)
             delay(wait)
             if (isActive && scrollState == ScrollState.SCROLLING && pages.size > 1) {
@@ -298,7 +331,7 @@ class AutoScrollController(
                     textColor = R.color.alert_text
                 )
             )
-            if (config.soundEnabled) {
+            if (soundEnabled) {
                 val tones: List<PlayBeepPattern.Tone> = if (enabled) {
                     listOf(
                         PlayBeepPattern.Tone(frequency = 1000, durationMs = 80),
