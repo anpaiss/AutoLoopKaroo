@@ -174,11 +174,7 @@ class AutoScrollController(
                     scrollState = ScrollState.NEAR_CUE
                     scrollJob?.cancel()
                     startNearCueTimeout()
-                    try {
-                        karooSystem.dispatch(ShowMapPage(zoom = false))
-                    } catch (e: Exception) {
-                        Log.e(TAG, "dispatch ShowMapPage failed", e)
-                    }
+                    showMap()
                 }
             }
             ScrollState.INACTIVE -> {
@@ -186,11 +182,7 @@ class AutoScrollController(
                     stateBeforeCue = ScrollState.INACTIVE
                     scrollState = ScrollState.NEAR_CUE
                     startNearCueTimeout()
-                    try {
-                        karooSystem.dispatch(ShowMapPage(zoom = false))
-                    } catch (e: Exception) {
-                        Log.e(TAG, "dispatch ShowMapPage failed", e)
-                    }
+                    showMap()
                 }
             }
             ScrollState.NEAR_CUE -> {
@@ -206,15 +198,19 @@ class AutoScrollController(
                     Log.d(TAG, "Near cue during POST_TURN at ${dist}m → map priority")
                     scrollState = ScrollState.NEAR_CUE
                     startNearCueTimeout()
-                    try {
-                        karooSystem.dispatch(ShowMapPage(zoom = false))
-                    } catch (e: Exception) {
-                        Log.e(TAG, "dispatch ShowMapPage failed", e)
-                    }
+                    showMap()
                 }
             }
         }
         lastDistanceToTurn = dist
+    }
+
+    private fun showMap() {
+        try {
+            karooSystem.dispatch(ShowMapPage(zoom = false))
+        } catch (e: Exception) {
+            Log.e(TAG, "dispatch ShowMapPage failed", e)
+        }
     }
 
     private fun startNearCueTimeout() {
