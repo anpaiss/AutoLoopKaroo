@@ -31,6 +31,8 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "AutoScrollController"
 
+private const val RESUME_ALERT_DELAY_MS = 3_000L
+
 enum class ScrollState { INACTIVE, SCROLLING, NEAR_CUE, POST_TURN }
 
 class AutoScrollController(
@@ -49,6 +51,7 @@ class AutoScrollController(
 
     private var scrollJob: Job? = null
     private var nearCueJob: Job? = null
+    private var resumeAlertJob: Job? = null
     @Volatile private var started = false
 
     private var lastDistanceToTurn = Double.MAX_VALUE
@@ -96,6 +99,7 @@ class AutoScrollController(
                     if (scrollState != ScrollState.INACTIVE) {
                         scrollJob?.cancel()
                         nearCueJob?.cancel()
+                        resumeAlertJob?.cancel()
                         scrollState = ScrollState.INACTIVE
                         stateBeforeCue = ScrollState.INACTIVE
                         scope.launch { notifyToggle(false) }
@@ -156,6 +160,10 @@ class AutoScrollController(
     }
 
     private fun onDistanceToTurn(dist: Double) {
+        if (!config.nearCueEnabled) {
+            lastDistanceToTurn = dist
+            return
+        }
         val threshold = config.nearCueDistanceM.toDouble()
         when (scrollState) {
             ScrollState.SCROLLING -> {
@@ -223,8 +231,21 @@ class AutoScrollController(
     private fun onPostTurnComplete() {
         Log.d(TAG, "Post-turn distance reached → back to $stateBeforeCue")
         when (stateBeforeCue) {
-            ScrollState.SCROLLING -> enterScrolling()
+            ScrollState.SCROLLING -> {
+                enterScrolling(notify = false)
+                scheduleResumeAlert()
+            }
             else -> scrollState = ScrollState.INACTIVE
+        }
+    }
+
+    private fun scheduleResumeAlert() {
+        resumeAlertJob?.cancel()
+        resumeAlertJob = scope.launch {
+            delay(RESUME_ALERT_DELAY_MS)
+            if (isActive && scrollState == ScrollState.SCROLLING) {
+                notifyToggle(true)
+            }
         }
     }
 
@@ -235,15 +256,19 @@ class AutoScrollController(
         }
     }
 
-    private fun enterScrolling() {
+    private fun enterScrolling(notify: Boolean = true) {
         scrollState = ScrollState.SCROLLING
-        notifyToggle(true)
+        if (notify) {
+            resumeAlertJob?.cancel()
+            notifyToggle(true)
+        }
         scheduleNextScroll()
     }
 
     private fun enterInactive() {
         scrollState = ScrollState.INACTIVE
         scrollJob?.cancel()
+        resumeAlertJob?.cancel()
         notifyToggle(false)
     }
 
@@ -297,6 +322,7 @@ class AutoScrollController(
     fun stop() {
         scrollJob?.cancel()
         nearCueJob?.cancel()
+        resumeAlertJob?.cancel()
         navConsumerIds.forEach { karooSystem.removeConsumer(it) }
         navConsumerIds.clear()
         consumerIds.forEach { karooSystem.removeConsumer(it) }

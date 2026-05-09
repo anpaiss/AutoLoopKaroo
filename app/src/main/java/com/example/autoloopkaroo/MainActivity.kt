@@ -74,6 +74,9 @@ fun ConfigScreen(context: android.content.Context) {
     var localSoundEnabled by remember(savedConfig) {
         androidx.compose.runtime.mutableStateOf(savedConfig.soundEnabled)
     }
+    var localNearCueEnabled by remember(savedConfig) {
+        androidx.compose.runtime.mutableStateOf(savedConfig.nearCueEnabled)
+    }
 
     Scaffold(
         topBar = { TopAppBar(title = { Text(stringResource(R.string.config_title)) }) }
@@ -108,6 +111,23 @@ fun ConfigScreen(context: android.content.Context) {
                 fontSize = 13.sp,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.config_near_cue_toggle_label),
+                    fontSize = 16.sp
+                )
+                Switch(
+                    checked = localNearCueEnabled,
+                    onCheckedChange = { localNearCueEnabled = it }
+                )
+            }
 
             Row(
                 modifier = Modifier
@@ -212,7 +232,8 @@ fun ConfigScreen(context: android.content.Context) {
                                 pageDwellMs = localPageDwells.map { (it * 1000).toLong() },
                                 nearCueDistanceM = localNearCueM,
                                 postTurnDistanceM = localPostTurnM,
-                                soundEnabled = localSoundEnabled
+                                soundEnabled = localSoundEnabled,
+                                nearCueEnabled = localNearCueEnabled
                             )
                         )
                     }
