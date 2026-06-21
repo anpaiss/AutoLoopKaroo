@@ -27,10 +27,10 @@ A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatic
 
 ## Installation
 
-1. Download the latest APK (Release Candidate 0.9.5+) from [Releases](https://github.com/anpaiss/AutoLoopKaroo/releases)
+1. Download the latest APK (stable 1.0.0) from [Releases](https://github.com/anpaiss/AutoLoopKaroo/releases)
 2. Install via ADB:
    ```bash
-   adb install AutoLoopKaroo.apk
+   adb install AutoLoopKaroo-1.0.0.apk
    ```
    Or transfer the APK to the Karoo via USB and install with a file manager.
 
