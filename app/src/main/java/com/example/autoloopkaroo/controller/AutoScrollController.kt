@@ -11,6 +11,7 @@ import io.hammerhead.karooext.models.ActiveRidePage
 import io.hammerhead.karooext.models.ActiveRideProfile
 import io.hammerhead.karooext.models.DataType
 import io.hammerhead.karooext.models.InRideAlert
+import io.hammerhead.karooext.models.Lap
 import io.hammerhead.karooext.models.OnStreamState
 import io.hammerhead.karooext.models.PerformHardwareAction
 import io.hammerhead.karooext.models.PlayBeepPattern
@@ -33,7 +34,7 @@ private const val TAG = "AutoScrollController"
 
 private const val RESUME_ALERT_DELAY_MS = 3_000L
 
-enum class ScrollState { INACTIVE, SCROLLING, NEAR_CUE, POST_TURN }
+enum class ScrollState { INACTIVE, SCROLLING, NEAR_CUE, POST_TURN, PAUSED }
 
 class AutoScrollController(
     private val context: Context,
@@ -121,6 +122,37 @@ class AutoScrollController(
                 }
             }
         }
+
+        consumerIds += karooSystem.addConsumer { lap: Lap ->
+            Log.d(TAG, "Lap #${lap.number} trigger=${lap.trigger}")
+            onLapToggle()
+        }
+    }
+
+    private fun onLapToggle() {
+        when (scrollState) {
+            ScrollState.SCROLLING -> pauseByLap()
+            ScrollState.NEAR_CUE, ScrollState.POST_TURN -> {
+                if (stateBeforeCue == ScrollState.SCROLLING) pauseByLap()
+            }
+            ScrollState.PAUSED -> enterScrolling()
+            ScrollState.INACTIVE -> {}
+        }
+    }
+
+    private fun pauseByLap() {
+        Log.d(TAG, "Lap press → PAUSED")
+        scrollJob?.cancel()
+        nearCueJob?.cancel()
+        resumeAlertJob?.cancel()
+        scrollState = ScrollState.PAUSED
+        stateBeforeCue = ScrollState.INACTIVE
+        try {
+            karooSystem.dispatch(ShowMapPage(zoom = false))
+        } catch (e: Exception) {
+            Log.e(TAG, "dispatch ShowMapPage failed", e)
+        }
+        notifyToggle(false, R.string.alert_scroll_paused)
     }
 
     private fun subscribeToNavigationStreams() {
@@ -212,6 +244,7 @@ class AutoScrollController(
                     }
                 }
             }
+            ScrollState.PAUSED -> {}
         }
         lastDistanceToTurn = dist
     }
@@ -289,13 +322,16 @@ class AutoScrollController(
         }
     }
 
-    private fun notifyToggle(enabled: Boolean) {
+    private fun notifyToggle(
+        enabled: Boolean,
+        titleRes: Int = if (enabled) R.string.alert_scroll_on else R.string.alert_scroll_off
+    ) {
         try {
             karooSystem.dispatch(
                 InRideAlert(
                     id = "autoloop_toggle_${System.currentTimeMillis()}",
                     icon = R.drawable.ic_autoloop,
-                    title = context.getString(if (enabled) R.string.alert_scroll_on else R.string.alert_scroll_off),
+                    title = context.getString(titleRes),
                     detail = null,
                     autoDismissMs = 2_000L,
                     backgroundColor = if (enabled) R.color.alert_on_background else R.color.alert_off_background,

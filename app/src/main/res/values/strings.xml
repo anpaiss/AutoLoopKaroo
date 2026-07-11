@@ -3,6 +3,7 @@
     <string name="bonus_action_toggle">Auto Loop: Toggle</string>
     <string name="alert_scroll_on">Auto Loop ON</string>
     <string name="alert_scroll_off">Auto Loop OFF</string>
+    <string name="alert_scroll_paused">Auto Loop paused</string>
     <string name="config_title">Auto Loop Karoo</string>
     <string name="config_page_label">Page %d</string>
     <string name="config_seconds_suffix">s</string>
