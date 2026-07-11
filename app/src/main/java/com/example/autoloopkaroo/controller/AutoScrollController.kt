@@ -6,6 +6,7 @@ import com.example.autoloopkaroo.R
 import com.example.autoloopkaroo.data.ScrollConfig
 import com.example.autoloopkaroo.data.saveScrollEnabled
 import com.example.autoloopkaroo.data.scrollConfigFlow
+import com.example.autoloopkaroo.overlay.RotationOverlay
 import io.hammerhead.karooext.KarooSystemService
 import io.hammerhead.karooext.models.ActiveRidePage
 import io.hammerhead.karooext.models.ActiveRideProfile
@@ -62,6 +63,8 @@ class AutoScrollController(
     private val consumerIds = mutableListOf<String>()
     private var navConsumerIds = mutableListOf<String>()
 
+    private val overlay = RotationOverlay(context) { togglePause() }
+
     @OptIn(FlowPreview::class)
     fun start() {
         if (started) return
@@ -93,6 +96,7 @@ class AutoScrollController(
                     if (config.isEnabled && scrollState == ScrollState.INACTIVE) {
                         scope.launch { enterScrolling() }
                     }
+                    updateOverlay()
                 }
                 else -> {
                     rideActive = false
@@ -105,6 +109,7 @@ class AutoScrollController(
                         stateBeforeCue = ScrollState.INACTIVE
                         scope.launch { notifyToggle(false) }
                     }
+                    updateOverlay()
                 }
             }
         }
@@ -125,23 +130,23 @@ class AutoScrollController(
 
         consumerIds += karooSystem.addConsumer { lap: Lap ->
             Log.d(TAG, "Lap #${lap.number} trigger=${lap.trigger}")
-            onLapToggle()
+            togglePause()
         }
     }
 
-    private fun onLapToggle() {
+    private fun togglePause() {
         when (scrollState) {
-            ScrollState.SCROLLING -> pauseByLap()
+            ScrollState.SCROLLING -> pauseRotation()
             ScrollState.NEAR_CUE, ScrollState.POST_TURN -> {
-                if (stateBeforeCue == ScrollState.SCROLLING) pauseByLap()
+                if (stateBeforeCue == ScrollState.SCROLLING) pauseRotation()
             }
             ScrollState.PAUSED -> enterScrolling()
             ScrollState.INACTIVE -> {}
         }
     }
 
-    private fun pauseByLap() {
-        Log.d(TAG, "Lap press → PAUSED")
+    private fun pauseRotation() {
+        Log.d(TAG, "Pause toggle → PAUSED")
         scrollJob?.cancel()
         nearCueJob?.cancel()
         resumeAlertJob?.cancel()
@@ -153,6 +158,7 @@ class AutoScrollController(
             Log.e(TAG, "dispatch ShowMapPage failed", e)
         }
         notifyToggle(false, R.string.alert_scroll_paused)
+        updateOverlay()
     }
 
     private fun subscribeToNavigationStreams() {
@@ -247,6 +253,15 @@ class AutoScrollController(
             ScrollState.PAUSED -> {}
         }
         lastDistanceToTurn = dist
+        updateOverlay()
+    }
+
+    private fun updateOverlay() {
+        val rotationRunning = scrollState == ScrollState.SCROLLING ||
+            ((scrollState == ScrollState.NEAR_CUE || scrollState == ScrollState.POST_TURN) &&
+                stateBeforeCue == ScrollState.SCROLLING)
+        val paused = scrollState == ScrollState.PAUSED
+        overlay.update(visible = rideActive && (rotationRunning || paused), paused = paused)
     }
 
     private fun startNearCueTimeout() {
@@ -257,6 +272,7 @@ class AutoScrollController(
                 Log.w(TAG, "NEAR_CUE timeout → forcing POST_TURN")
                 odometerAtTurn = currentOdometer
                 scrollState = ScrollState.POST_TURN
+                updateOverlay()
             }
         }
     }
@@ -270,6 +286,7 @@ class AutoScrollController(
             }
             else -> scrollState = ScrollState.INACTIVE
         }
+        updateOverlay()
     }
 
     private fun scheduleResumeAlert() {
@@ -296,6 +313,7 @@ class AutoScrollController(
             notifyToggle(true)
         }
         scheduleNextScroll()
+        updateOverlay()
     }
 
     private fun enterInactive() {
@@ -303,6 +321,7 @@ class AutoScrollController(
         scrollJob?.cancel()
         resumeAlertJob?.cancel()
         notifyToggle(false)
+        updateOverlay()
     }
 
     private fun scheduleNextScroll() {
@@ -356,6 +375,7 @@ class AutoScrollController(
     }
 
     fun stop() {
+        overlay.destroy()
         scrollJob?.cancel()
         nearCueJob?.cancel()
         resumeAlertJob?.cancel()

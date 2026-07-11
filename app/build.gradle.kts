@@ -26,8 +26,8 @@ android {
         applicationId = "com.example.autoloopkaroo"
         minSdk = 31
         targetSdk = 31
-        versionCode = 6
-        versionName = "1.1.0-beta1"
+        versionCode = 7
+        versionName = "1.1.0-beta2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

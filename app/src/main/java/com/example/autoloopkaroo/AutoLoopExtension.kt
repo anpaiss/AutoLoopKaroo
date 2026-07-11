@@ -7,7 +7,7 @@ import io.hammerhead.karooext.extension.KarooExtension
 
 private const val TAG = "AutoLoop"
 
-class AutoLoopExtension : KarooExtension("autoloop-karoo", "1.1.0-beta1") {
+class AutoLoopExtension : KarooExtension("autoloop-karoo", "1.1.0-beta2") {
 
     private lateinit var karooSystem: KarooSystemService
     private lateinit var controller: AutoScrollController
