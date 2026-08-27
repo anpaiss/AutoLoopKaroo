@@ -1,0 +1,44 @@
+name: Bug report
+description: Something is not working as expected
+labels: [bug]
+body:
+  - type: input
+    id: karoo
+    attributes:
+      label: Karoo model
+      placeholder: Karoo 2 / Karoo 3
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Karoo OS version
+      description: Settings → About → Software version
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Extension version
+      placeholder: e.g. 1.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Start a ride...
+        2. ...
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+      description: Optional. Attach a screenshot or logcat output if you have one.
