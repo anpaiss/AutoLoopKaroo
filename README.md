@@ -6,6 +6,22 @@ A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatic
 
 ---
 
+## Screenshots
+
+<table>
+  <tr>
+    <td><img width="240" height="400" alt="autoloopCONFIG1" src="https://github.com/user-attachments/assets/636b0540-a781-468c-be6f-ed9d666e9a88" /></td>
+    <td> <img width="240" height="400" alt="beta095-2" src="https://github.com/user-attachments/assets/0b8156fd-43a6-4727-aff6-39d4483eae01" /></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td><img width="240" height="400" alt="autoloopON" src="https://github.com/user-attachments/assets/8354d8c4-717c-4083-9853-59ba82d8bea7" /></td>
+    <td>  <img width="240" height="400" alt="autoloopOFF" src="https://github.com/user-attachments/assets/70fad57b-43f0-4aee-9340-37add7d03cbb" /></td>
+  </tr>
+</table>
+
 ## Features
 
 - **Auto-scroll** cycles through all pages in your active ride profile at a configurable interval.
@@ -86,21 +102,7 @@ Ride paused or ended
 
 MIT License — see [LICENSE](LICENSE) for details.
 
-## Screenshots
 
-<table>
-  <tr>
-    <td><img width="240" height="400" alt="autoloopCONFIG1" src="https://github.com/user-attachments/assets/636b0540-a781-468c-be6f-ed9d666e9a88" /></td>
-    <td> <img width="240" height="400" alt="beta095-2" src="https://github.com/user-attachments/assets/0b8156fd-43a6-4727-aff6-39d4483eae01" /></td>
-  </tr>
-</table>
-
-<table>
-  <tr>
-    <td><img width="240" height="400" alt="autoloopON" src="https://github.com/user-attachments/assets/8354d8c4-717c-4083-9853-59ba82d8bea7" /></td>
-    <td>  <img width="240" height="400" alt="autoloopOFF" src="https://github.com/user-attachments/assets/70fad57b-43f0-4aee-9340-37add7d03cbb" /></td>
-  </tr>
-</table>
 
 
 
