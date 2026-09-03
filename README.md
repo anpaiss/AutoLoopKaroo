@@ -52,6 +52,14 @@ A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatic
 
 *Note: After installation, it is recommended to reboot the Karoo to ensure the extension service is fully registered.*
 
+From 1.1.0 the app also ships a Karoo **extension manifest**, so it can be listed in the Karoo Extension Library and offer updates from there: the APK declares `https://github.com/anpaiss/AutoLoopKaroo/releases/latest/download/manifest.json` as `MANIFEST_URL`, and every release carries that file next to the APK.
+
+### Publishing a release (maintainer notes)
+
+1. Bump `versionCode` (must increase — it is what the Karoo compares to offer an update) and `versionName` in `app/build.gradle.kts`.
+2. `./gradlew assembleRelease` with the release keystore in `local.properties` (`signing.*`). The build also writes `app/manifest.json` with the same version and code.
+3. Create the GitHub release for tag `vX.Y.Z` (not a pre-release: `latest` only resolves to stable releases) and attach **both** files, the APK renamed to `AutoLoopKaroo.apk` and `manifest.json`, with exactly those names — both URLs are fixed.
+
 ---
 
 ## Configuration
