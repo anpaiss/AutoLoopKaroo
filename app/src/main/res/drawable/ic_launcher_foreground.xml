@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Autoplay": play triangle inside a looping arrow, white on the orange
+     background shared by the other extensions (14/10, replaces the PNG).
+     Glyph drawn in a 48-unit box, scaled into the 66 dp safe zone of the
+     108 dp adaptive icon. Same drawing as reddit_images/logos/logo.html. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="1.25"
+        android:scaleY="1.25"
+        android:translateX="24"
+        android:translateY="24">
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3.2"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M36.5,14.5 A15,15 0 1 0 39,24" />
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3.2"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M38.5,7.5 L37,15 L29.5,13.5" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M20,17.5 v13 l11,-6.5 z" />
+    </group>
+</vector>
