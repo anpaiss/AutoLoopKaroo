@@ -29,7 +29,7 @@ A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatic
 - **Starts automatically** when you begin recording a ride.
 - **Stops automatically** when you pause or end the ride.
 - **Navigation-aware**: Switches to the map page when approaching a turn, then resumes scrolling after the turn. Distances are fully configurable.
-- **Toggle on/off** from the app settings or via **Control Center Bonus Actions**.
+- **Toggle on/off** from the app settings or with the Karoo's **bottom-left hardware button** (the one the Karoo assigns to extension bonus actions, shared with pause), or from SRAM AXS buttons / ANT+ remotes bound to bonus actions.
 - **Audible feedback** (beep + on-screen alert) when auto-scroll is toggled.
 
 ---
@@ -84,7 +84,7 @@ Changes take effect immediately — no restart needed.
 Ride starts (Recording)
     └─ Auto-scroll enabled? ──Yes──► Start cycling pages based on per-page dwell time
                              │       (Skips pages set to 0s)
-                             No ──► Wait (toggle from app or Control Center)
+                             No ──► Wait (toggle from app or bottom-left button)
 
 Approaching turn (within switch-to-map distance, default 25 m)
     └─► Switch to map page automatically
@@ -102,7 +102,7 @@ Ride paused or ended
 
 - **Target SDK 31**: Aligned with Karoo 3 (Android 12) for maximum stability and input handling.
 - **Extension ID**: `autoloopkaroo` (No dots, as required by Hammerhead SDK).
-- **Bonus Actions**: Triggerable via SRAM AXS buttons, external ANT+ controllers, or the Control Center widget.
+- **Bonus Action** `toggle_scroll`: the Karoo fires it from the bottom-left hardware button during a ride, or from SRAM AXS buttons / external ANT+ controllers bound to bonus actions. It is not in the Control Center.
 
 ---
 
