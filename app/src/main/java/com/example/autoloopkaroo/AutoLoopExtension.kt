@@ -1,13 +1,14 @@
 package com.example.autoloopkaroo
 
 import android.util.Log
+import com.anpaiss.karooswitches.SwitchesDataType
 import com.example.autoloopkaroo.controller.AutoScrollController
 import io.hammerhead.karooext.KarooSystemService
 import io.hammerhead.karooext.extension.KarooExtension
 
 private const val TAG = "AutoLoop"
 
-class AutoLoopExtension : KarooExtension("autoloop-karoo", "1.1.0-beta3") {
+class AutoLoopExtension : KarooExtension("autoloop-karoo", "1.2.0") {
 
     private lateinit var karooSystem: KarooSystemService
     private lateinit var controller: AutoScrollController
@@ -20,7 +21,7 @@ class AutoLoopExtension : KarooExtension("autoloop-karoo", "1.1.0-beta3") {
         try {
             val field = KarooExtension::class.java.getDeclaredField("types")
             field.isAccessible = true
-            field.set(this, listOf(AutoScrollDataType("autoloop-karoo", applicationContext)))
+            field.set(this, listOf(AutoScrollDataType("autoloop-karoo", applicationContext), SwitchesDataType("autoloop-karoo")))
             Log.i(TAG, "DataType registered via reflection")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to register DataType", e)

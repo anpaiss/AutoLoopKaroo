@@ -31,8 +31,8 @@ android {
         applicationId = "com.example.autoloopkaroo"
         minSdk = 31
         targetSdk = 31
-        versionCode = 9
-        versionName = "1.1.0"
+        versionCode = 10
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -115,6 +115,7 @@ tasks.named("preBuild") { dependsOn(generateManifest) }
 
 dependencies {
     implementation(libs.karoo.ext)
+    implementation("com.github.anpaiss:KarooSwitches:0.1.0")
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.datastore.preferences)
 

@@ -47,6 +47,20 @@
                 android:resource="@xml/extension_info" />
         </service>
 
+        <!-- "Auto Loop" switch for the Switches popup (KarooSwitches library):
+             exported, behind the signature permission, so only our extensions see it -->
+        <receiver
+            android:name=".AutoLoopSwitch"
+            android:exported="true"
+            android:permission="com.anpaiss.karooswitches.CONTROL">
+            <intent-filter>
+                <action android:name="com.anpaiss.karooswitches.SWITCH" />
+            </intent-filter>
+            <meta-data
+                android:name="com.anpaiss.karooswitches.label"
+                android:value="Auto Loop" />
+        </receiver>
+
     </application>
 
 </manifest>

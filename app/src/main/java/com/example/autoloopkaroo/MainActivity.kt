@@ -1,6 +1,9 @@
 package com.example.autoloopkaroo
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -23,6 +26,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
@@ -77,6 +81,10 @@ fun ConfigScreen(context: android.content.Context) {
     var localNearCueEnabled by remember(savedConfig) {
         androidx.compose.runtime.mutableStateOf(savedConfig.nearCueEnabled)
     }
+    var localLapButtonPauses by remember(savedConfig) {
+        androidx.compose.runtime.mutableStateOf(savedConfig.lapButtonPauses)
+    }
+    var overlayGranted by remember { mutableStateOf(Settings.canDrawOverlays(context)) }
 
     Scaffold(
         topBar = { TopAppBar(title = { Text(stringResource(R.string.config_title)) }) }
@@ -144,6 +152,59 @@ fun ConfigScreen(context: android.content.Context) {
                     checked = localSoundEnabled,
                     onCheckedChange = { localSoundEnabled = it }
                 )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.config_lap_button_label),
+                    fontSize = 16.sp,
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(
+                    checked = localLapButtonPauses,
+                    onCheckedChange = { localLapButtonPauses = it }
+                )
+            }
+            Text(
+                text = stringResource(R.string.config_lap_button_hint),
+                fontSize = 13.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            HorizontalDivider()
+            Text(
+                text = stringResource(R.string.config_overlay_title),
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            Text(
+                text = stringResource(R.string.config_overlay_hint),
+                fontSize = 13.sp
+            )
+            Text(
+                text = stringResource(if (overlayGranted) R.string.config_overlay_granted else R.string.config_overlay_missing),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium
+            )
+            if (!overlayGranted) {
+                Button(
+                    onClick = {
+                        context.startActivity(
+                            Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + context.packageName))
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                        overlayGranted = Settings.canDrawOverlays(context)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.config_overlay_button))
+                }
             }
 
             HorizontalDivider()
@@ -233,7 +294,8 @@ fun ConfigScreen(context: android.content.Context) {
                                 nearCueDistanceM = localNearCueM,
                                 postTurnDistanceM = localPostTurnM,
                                 soundEnabled = localSoundEnabled,
-                                nearCueEnabled = localNearCueEnabled
+                                nearCueEnabled = localNearCueEnabled,
+                                lapButtonPauses = localLapButtonPauses
                             )
                         )
                     }

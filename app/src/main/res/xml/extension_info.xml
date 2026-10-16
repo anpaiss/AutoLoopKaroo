@@ -16,4 +16,12 @@
         graphical="false"
         icon="@mipmap/ic_launcher" />
 
+    <!-- Switches field (KarooSwitches library): tap = popup with the switches of every extension -->
+    <DataType
+        typeId="switches"
+        displayName="@string/switches_name"
+        description="@string/switches_desc"
+        graphical="true"
+        icon="@mipmap/ic_launcher" />
+
 </ExtensionInfo>

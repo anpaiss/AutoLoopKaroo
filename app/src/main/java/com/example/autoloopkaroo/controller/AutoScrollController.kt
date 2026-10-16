@@ -47,6 +47,10 @@ class AutoScrollController(
     @Volatile private var rideActive = false
 
     private var currentPageIndex = 0
+    // Pages set to 0 s are skipped with presses sent back to back; the page events of
+    // the skipped ones arrive too and are ignored until burstTarget shows up (2 s at most).
+    @Volatile private var burstTarget = -1
+    @Volatile private var burstAt = 0L
     private var pages: List<RideProfile.Page> = emptyList()
     private var config = ScrollConfig()
 
@@ -118,6 +122,10 @@ class AutoScrollController(
         consumerIds += karooSystem.addConsumer { event: ActiveRidePage ->
             val idx = pages.indexOf(event.page)
             if (idx >= 0) {
+                if (burstTarget >= 0 && idx != burstTarget && System.currentTimeMillis() - burstAt < 2_000L) {
+                    return@addConsumer
+                }
+                burstTarget = -1
                 currentPageIndex = idx
                 if (scrollState == ScrollState.SCROLLING) {
                     scope.launch { scheduleNextScroll() }
@@ -127,7 +135,7 @@ class AutoScrollController(
 
         consumerIds += karooSystem.addConsumer { lap: Lap ->
             Log.d(TAG, "Lap #${lap.number} trigger=${lap.trigger}")
-            togglePause()
+            if (config.lapButtonPauses) togglePause() else Log.d(TAG, "Lap ignored: bottom-left button option is off")
         }
     }
 
@@ -311,13 +319,24 @@ class AutoScrollController(
         scrollJob?.cancel()
         scrollJob = scope.launch {
             val dwell = config.dwellForPage(currentPageIndex)
-            val wait = if (dwell == 0L) 50L else dwell.coerceAtLeast(1000L)
-            delay(wait)
+            if (dwell > 0L) delay(dwell.coerceAtLeast(1000L))   // a 0 s page reached by hand is left at once
             if (isActive && scrollState == ScrollState.SCROLLING && pages.size > 1) {
+                // One press per page to skip, plus one, all back to back: the ride app never
+                // gets to draw the skipped pages (verified 16/10 with screen recordings; with
+                // a 50 ms gap they showed for 80 ms, with the old wait-for-page-event much longer).
+                var presses = 1
+                var next = (currentPageIndex + 1) % pages.size
+                while (config.dwellForPage(next) == 0L && presses < pages.size) {
+                    presses++
+                    next = (next + 1) % pages.size
+                }
+                burstTarget = next
+                burstAt = System.currentTimeMillis()
                 try {
-                    karooSystem.dispatch(PerformHardwareAction.TopRightPress)
+                    repeat(presses) { karooSystem.dispatch(PerformHardwareAction.TopRightPress) }
                 } catch (e: Exception) {
                     Log.e(TAG, "dispatch TopRightPress failed", e)
+                    burstTarget = -1
                     scheduleNextScroll()
                 }
             }

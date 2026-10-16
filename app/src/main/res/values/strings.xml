@@ -19,4 +19,13 @@
     <string name="config_sound_label">Toggle sound</string>
     <string name="config_near_cue_toggle_label">Show map near turns</string>
     <string name="config_save">Save</string>
+    <string name="config_lap_button_label">Bottom-left button pauses the loop</string>
+    <string name="config_lap_button_hint">Off: the button only marks a lap, as the Karoo does by itself. Use the Switches field to pause the loop instead.</string>
+    <string name="config_overlay_title">Switches popup</string>
+    <string name="config_overlay_hint">The Switches data field opens a popup over the ride screen to switch Auto Loop and the other extensions on or off. It needs the overlay permission.</string>
+    <string name="config_overlay_granted">Overlay permission: granted</string>
+    <string name="config_overlay_missing">Overlay permission: not granted</string>
+    <string name="config_overlay_button">Allow popup (overlay permission)</string>
+    <string name="switches_name">Switches</string>
+    <string name="switches_desc">Tap the field to switch Auto Loop and the other extensions on or off during the ride</string>
 </resources>
