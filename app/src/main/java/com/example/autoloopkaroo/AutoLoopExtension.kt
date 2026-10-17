@@ -13,19 +13,13 @@ class AutoLoopExtension : KarooExtension("autoloop-karoo", "1.2.0") {
     private lateinit var karooSystem: KarooSystemService
     private lateinit var controller: AutoScrollController
 
+    override val types by lazy {
+        listOf(AutoScrollDataType("autoloop-karoo", applicationContext), SwitchesDataType("autoloop-karoo"))
+    }
+
     override fun onCreate() {
         super.onCreate()
         Log.i(TAG, "Extension onCreate")
-
-        // getTypes() is not open in base class — inject via reflection before AppStore reads it
-        try {
-            val field = KarooExtension::class.java.getDeclaredField("types")
-            field.isAccessible = true
-            field.set(this, listOf(AutoScrollDataType("autoloop-karoo", applicationContext), SwitchesDataType("autoloop-karoo")))
-            Log.i(TAG, "DataType registered via reflection")
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to register DataType", e)
-        }
 
         karooSystem = KarooSystemService(applicationContext)
         controller = AutoScrollController(applicationContext, karooSystem)

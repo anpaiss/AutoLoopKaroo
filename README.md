@@ -27,12 +27,14 @@ A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatic
 ## Features
 
 - **Auto-scroll** cycles through all pages in your active ride profile at a configurable interval.
-- **Page Skipping**: Set a page duration to **0 seconds** to skip it during the loop.
+- **Page Skipping**: Set a page duration to **0 seconds** to skip it during the loop. Skipped pages are passed with back-to-back presses, so they never show up on screen.
 - **Starts automatically** when you begin recording a ride.
 - **Stops automatically** when you pause or end the ride.
 - **Navigation-aware**: Switches to the map page when approaching a turn, then resumes scrolling after the turn. Distances are fully configurable.
 - **Toggle on/off** from the app settings or with the Karoo's **bottom-left hardware button** (the one the Karoo assigns to extension bonus actions, shared with pause), or from SRAM AXS buttons / ANT+ remotes bound to bonus actions.
 - **Audible feedback** (beep + on-screen alert) when auto-scroll is toggled.
+- **Switches data field** (1.2.0): a field for your ride pages that shows whether Auto Loop is ON or OFF. Tap it and a popup lets you switch Auto Loop, and the other extensions by the same author, on or off without leaving the ride screen.
+- **Bottom-left button option**: choose whether the hardware button also pauses the loop or only marks a lap, as the Karoo does by itself.
 
 ---
 
@@ -75,8 +77,18 @@ Open the **Auto Loop Karoo** app on your Karoo:
 | **Sound Feedback** | Toggle audible beeps when enabling/disabling scroll. |
 | **Switch-to-map distance** | Distance before a turn to switch to the map page (10–250 m). |
 | **Resume distance** | Distance after a turn before auto-scroll resumes (10–250 m). |
+| **Bottom-left button pauses the loop** | On (default): the button pauses and resumes the loop during a ride, as before. Off: the button only marks a lap and the loop is controlled from the app or the Switches field. |
+| **Allow popup (overlay permission)** | Grants the permission the Switches popup needs to draw over the ride screen. The field says ALLOW OVERLAY until it is granted. |
 
 Changes take effect immediately — no restart needed.
+
+---
+
+## Switches field
+
+Add the **Switches** data field (under Auto Loop Karoo) to any ride page. It shows **AUTO LOOP KAROO** with ON or OFF underneath, and a tap opens a popup over the ride screen with one button per switch of every installed extension that supports it: **Auto Loop** here, **Water alerts** in [PoiAhead](https://github.com/anpaiss/PoiAhead), more as they come. Tap a button to flip the switch, CLOSE or wait 20 seconds to dismiss. Touches outside the popup still reach the ride screen.
+
+The popup needs the overlay permission: open the app and press **Allow popup (overlay permission)** once. Each extension ships the same field through the shared [KarooSwitches](https://github.com/anpaiss/KarooSwitches) library, so whichever one you install first already gives you the popup, and the switches of the others appear as you install them.
 
 ---
 
@@ -105,6 +117,7 @@ Ride paused or ended
 - **Target SDK 31**: Aligned with Karoo 3 (Android 12) for maximum stability and input handling.
 - **Extension ID**: `autoloopkaroo` (No dots, as required by Hammerhead SDK).
 - **Bonus Action** `toggle_scroll`: the Karoo fires it from the bottom-left hardware button during a ride, or from SRAM AXS buttons / external ANT+ controllers bound to bonus actions. It is not in the Control Center.
+- **Switches**: the field, the popup and the switch protocol come from the [KarooSwitches](https://github.com/anpaiss/KarooSwitches) library. The switch itself is `AutoLoopSwitch`, an exported receiver behind a signature-level permission, so only extensions signed with the same key can see or flip it.
 
 ---
 

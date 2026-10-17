@@ -87,7 +87,8 @@ val generateManifest by tasks.registering {
     inputs.property("version", version); inputs.property("code", code); inputs.property("notes", notes)
     outputs.file(out)
     doLast {
-        fun q(v: String) = "\"" + v.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n") + "\""
+        fun q(v: String) = "\"" + v.replace("\\", "\\\\").replace("\"", "\\\"")
+            .replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t") + "\""
         // Screenshots live in docs/: github.com/user-attachments URLs answer 403
         // to anything that is not a browser, so the Karoo backend could not use them.
         val shots = listOf("config-1", "config-2", "field-on", "field-off")
@@ -115,7 +116,7 @@ tasks.named("preBuild") { dependsOn(generateManifest) }
 
 dependencies {
     implementation(libs.karoo.ext)
-    implementation("com.github.anpaiss:KarooSwitches:0.1.0")
+    implementation("com.github.anpaiss:KarooSwitches:0.1.1")
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.datastore.preferences)
 

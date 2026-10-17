@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.anpaiss.karooswitches.Switches
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -62,6 +63,7 @@ fun Context.scrollConfigFlow(): Flow<ScrollConfig> =
 
 suspend fun Context.saveScrollEnabled(enabled: Boolean) {
     dataStore.edit { it[PrefsKeys.IS_ENABLED] = enabled }
+    Switches.notifyChanged()   // the Switches field redraws (app toggle, bonus action)
 }
 
 suspend fun Context.saveScrollConfig(config: ScrollConfig) {

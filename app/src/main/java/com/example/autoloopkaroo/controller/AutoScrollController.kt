@@ -46,22 +46,24 @@ class AutoScrollController(
     @Volatile private var stateBeforeCue = ScrollState.INACTIVE
     @Volatile private var rideActive = false
 
-    private var currentPageIndex = 0
+    // Consumers run on binder threads, the scroll loop on Dispatchers.Default: no locking
+    // needed (events never overlap in practice) but writes must be visible across threads.
+    @Volatile private var currentPageIndex = 0
     // Pages set to 0 s are skipped with presses sent back to back; the page events of
     // the skipped ones arrive too and are ignored until burstTarget shows up (2 s at most).
     @Volatile private var burstTarget = -1
     @Volatile private var burstAt = 0L
-    private var pages: List<RideProfile.Page> = emptyList()
-    private var config = ScrollConfig()
+    @Volatile private var pages: List<RideProfile.Page> = emptyList()
+    @Volatile private var config = ScrollConfig()
 
     private var scrollJob: Job? = null
     private var nearCueJob: Job? = null
     private var resumeAlertJob: Job? = null
     @Volatile private var started = false
 
-    private var lastDistanceToTurn = Double.MAX_VALUE
-    private var odometerAtTurn = 0.0
-    private var currentOdometer = 0.0
+    @Volatile private var lastDistanceToTurn = Double.MAX_VALUE
+    @Volatile private var odometerAtTurn = 0.0
+    @Volatile private var currentOdometer = 0.0
 
     private val consumerIds = mutableListOf<String>()
     private var navConsumerIds = mutableListOf<String>()

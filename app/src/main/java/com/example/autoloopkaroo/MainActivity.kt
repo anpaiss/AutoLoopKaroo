@@ -24,6 +24,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +39,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.autoloopkaroo.data.MAX_PAGES
 import com.example.autoloopkaroo.data.ScrollConfig
 import com.example.autoloopkaroo.data.saveScrollConfig
@@ -63,28 +67,40 @@ class MainActivity : ComponentActivity() {
 fun ConfigScreen(context: android.content.Context) {
     val scope = rememberCoroutineScope()
     val savedConfig by context.scrollConfigFlow().collectAsState(initial = ScrollConfig())
+    // The form reloads from DataStore only when the saved values change (first load, Save):
+    // an on/off toggle while editing must not reset the unsaved sliders and switches.
+    val formKey = savedConfig.copy(isEnabled = false)
 
-    val localPageDwells = remember(savedConfig) {
+    val localPageDwells = remember(formKey) {
         mutableStateListOf(*Array(MAX_PAGES) { i ->
             (savedConfig.dwellForPage(i) / 1000f)
         })
     }
-    var localNearCueM by remember(savedConfig) {
+    var localNearCueM by remember(formKey) {
         mutableFloatStateOf(savedConfig.nearCueDistanceM)
     }
-    var localPostTurnM by remember(savedConfig) {
+    var localPostTurnM by remember(formKey) {
         mutableFloatStateOf(savedConfig.postTurnDistanceM)
     }
-    var localSoundEnabled by remember(savedConfig) {
+    var localSoundEnabled by remember(formKey) {
         androidx.compose.runtime.mutableStateOf(savedConfig.soundEnabled)
     }
-    var localNearCueEnabled by remember(savedConfig) {
+    var localNearCueEnabled by remember(formKey) {
         androidx.compose.runtime.mutableStateOf(savedConfig.nearCueEnabled)
     }
-    var localLapButtonPauses by remember(savedConfig) {
+    var localLapButtonPauses by remember(formKey) {
         androidx.compose.runtime.mutableStateOf(savedConfig.lapButtonPauses)
     }
     var overlayGranted by remember { mutableStateOf(Settings.canDrawOverlays(context)) }
+    // The system settings page is a separate activity: re-check when the user comes back
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) overlayGranted = Settings.canDrawOverlays(context)
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     Scaffold(
         topBar = { TopAppBar(title = { Text(stringResource(R.string.config_title)) }) }
@@ -199,7 +215,6 @@ fun ConfigScreen(context: android.content.Context) {
                             Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + context.packageName))
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         )
-                        overlayGranted = Settings.canDrawOverlays(context)
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
