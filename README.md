@@ -1,4 +1,4 @@
-![Total Downloads](https://img.shields.io/github/downloads/anpaiss/AutoLoopKaroo/total?color=blue)
+![Total Downloads](https://img.shields.io/github/downloads/anpaiss/AutoLoopKaroo/AutoLoopKaroo.apk?color=blue)
 ![Latest Release](https://img.shields.io/github/v/release/anpaiss/AutoLoopKaroo)
 # Auto Loop Karoo
 
