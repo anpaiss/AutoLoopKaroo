@@ -38,7 +38,15 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        mavenLocal()   // KarooSwitches until it is on JitPack
+        maven {
+            // KarooSwitches (GitHub Packages of the private repo anpaiss/KarooSwitches, same credentials)
+            url = uri("https://maven.pkg.github.com/anpaiss/KarooSwitches")
+            content { includeGroup("com.github.anpaiss") }   // asked only for our library: a 401 here must not break karoo-ext
+            credentials {
+                username = gprUser()
+                password = gprKey()
+            }
+        }
         maven {
             url = uri("https://maven.pkg.github.com/hammerheadnav/karoo-ext")
             credentials {

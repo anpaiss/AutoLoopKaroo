@@ -24,6 +24,11 @@ A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatic
   </tr>
 </table>
 
+## What's new in 1.2.1
+
+- **Switches popup, second generation** (shared library 0.2.0): besides the ON/OFF buttons, the popup can host a time with its own switch, like BetterETA's mandatory arrival time (ON/OFF plus −15 / −5 / +5 / +15). Auto Loop's own switch is unchanged. See [Switches field](#switches-field) for the screenshots.
+- **Fixes from the October code review**: the Switches field redraws as soon as Auto Loop is toggled from the app or from the bonus action, not only from the popup; the overlay permission is re-checked when the app comes back to the foreground; the configuration form no longer loses its state on a Compose recomposition; fields shared between threads are volatile; XML escaping of the generated manifest.
+
 ## Features
 
 - **Auto-scroll** cycles through all pages in your active ride profile at a configurable interval.
@@ -33,7 +38,7 @@ A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatic
 - **Navigation-aware**: Switches to the map page when approaching a turn, then resumes scrolling after the turn. Distances are fully configurable.
 - **Toggle on/off** from the app settings or with the Karoo's **bottom-left hardware button** (the one the Karoo assigns to extension bonus actions, shared with pause), or from SRAM AXS buttons / ANT+ remotes bound to bonus actions.
 - **Audible feedback** (beep + on-screen alert) when auto-scroll is toggled.
-- **Switches data field** (1.2.0): a field for your ride pages that shows whether Auto Loop is ON or OFF. Tap it and a popup lets you switch Auto Loop, and the other extensions by the same author, on or off without leaving the ride screen.
+- **Switches data field** (1.2.0, popup extended in 1.2.1): a field for your ride pages that shows whether Auto Loop is ON or OFF. Tap it and a popup lets you switch Auto Loop, and the other extensions by the same author, on or off without leaving the ride screen.
 - **Bottom-left button option**: choose whether the hardware button also pauses the loop or only marks a lap, as the Karoo does by itself.
 
 ---
@@ -88,7 +93,20 @@ Changes take effect immediately — no restart needed.
 
 Add the **Switches** data field (under Auto Loop Karoo) to any ride page. It shows **AUTO LOOP KAROO** with ON or OFF underneath, and a tap opens a popup over the ride screen with one button per switch of every installed extension that supports it: **Auto Loop** here, **Water alerts** in [PoiAhead](https://github.com/anpaiss/PoiAhead), more as they come. Tap a button to flip the switch, CLOSE or wait 20 seconds to dismiss. Touches outside the popup still reach the ride screen.
 
-The popup needs the overlay permission: open the app and press **Allow popup (overlay permission)** once. Each extension ships the same field through the shared [KarooSwitches](https://github.com/anpaiss/KarooSwitches) library, so whichever one you install first already gives you the popup, and the switches of the others appear as you install them.
+The popup needs the overlay permission: open the app and press **Allow popup (overlay permission)** once. Each extension ships the same field through the shared [KarooSwitches](https://github.com/anpaiss/KarooSwitches) library, so whichever one you install first already gives you the popup, and the switches of the others appear as you install them. No extra APK is needed.
+
+Since 1.2.1 a row can also be a **time with its own switch**, when an extension exposes one: BetterETA's mandatory arrival time shows its ON/OFF button and, while ON, the time with −15 / −5 / +5 / +15 buttons; OFF shrinks the row to its label. Auto Loop's row stays a plain ON/OFF button.
+
+<table>
+  <tr>
+    <td><img width="240" alt="Switches popup: a time row switched ON above the Auto Loop and PoiAhead switches" src="docs/switches-popup-on.png" /></td>
+    <td><img width="240" alt="Switches popup: the time row switched OFF, only Auto Loop and PoiAhead left" src="docs/switches-popup-off.png" /></td>
+  </tr>
+  <tr>
+    <td>Time row <b>ON</b></td>
+    <td>Time row <b>OFF</b></td>
+  </tr>
+</table>
 
 ---
 
