@@ -24,6 +24,10 @@ A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatic
   </tr>
 </table>
 
+## What's new in 1.2.2
+
+- **12 pages instead of 10**: the number of pages Auto Loop can use goes from 10 to 12, the most the Karoo allows in a profile.
+
 ## What's new in 1.2.1
 
 - **Switches popup, second generation** (shared library 0.2.0): besides the ON/OFF buttons, the popup can host a time with its own switch, like BetterETA's mandatory arrival time (ON/OFF plus −15 / −5 / +5 / +15). Auto Loop's own switch is unchanged. See [Switches field](#switches-field) for the screenshots.
@@ -78,7 +82,7 @@ Open the **Auto Loop Karoo** app on your Karoo:
 | Setting | Description |
 |---|---|
 | **Auto Scroll** toggle | Enable or disable auto-scrolling globally. |
-| **Time per page** | Seconds to display each page. Set to **Skip** (0s) to ignore a page in the loop. |
+| **Time per page** | Seconds to display each page, for up to 12 pages (the Karoo's maximum per profile). Set to **Skip** (0s) to ignore a page in the loop. |
 | **Sound Feedback** | Toggle audible beeps when enabling/disabling scroll. |
 | **Switch-to-map distance** | Distance before a turn to switch to the map page (10–250 m). |
 | **Resume distance** | Distance after a turn before auto-scroll resumes (10–250 m). |

@@ -3,6 +3,7 @@ package com.example.autoloopkaroo.controller
 import android.content.Context
 import android.util.Log
 import com.example.autoloopkaroo.R
+import com.example.autoloopkaroo.data.MAX_PAGES
 import com.example.autoloopkaroo.data.ScrollConfig
 import com.example.autoloopkaroo.data.saveScrollEnabled
 import com.example.autoloopkaroo.data.scrollConfigFlow
@@ -118,7 +119,7 @@ class AutoScrollController(
         }
 
         consumerIds += karooSystem.addConsumer { event: ActiveRideProfile ->
-            pages = event.profile.pages.take(10)
+            pages = event.profile.pages.take(MAX_PAGES)
         }
 
         consumerIds += karooSystem.addConsumer { event: ActiveRidePage ->

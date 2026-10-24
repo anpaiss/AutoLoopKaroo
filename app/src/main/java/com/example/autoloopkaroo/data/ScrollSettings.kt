@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.map
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "autoloop_settings")
 
-const val MAX_PAGES = 10
+// Karoo OS allows 12 data pages per profile (Hammerhead support, "Karoo OS - Customising Profiles"); with 10 here
+// the 11th and 12th pages were unknown to the controller and the sequence broke (24/10/2026)
+const val MAX_PAGES = 12
 const val DEFAULT_DWELL_MS = 5_000L
 const val DEFAULT_NEAR_CUE_M = 25f
 const val DEFAULT_POST_TURN_M = 10f
