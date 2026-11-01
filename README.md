@@ -143,6 +143,10 @@ Ride paused or ended
 
 ---
 
+## Support
+
+Auto Loop Karoo is free and open source, and will stay that way. If it made a ride better, you can [buy me a coffee on Ko-fi](https://ko-fi.com/anpaiss): it pays for the small things, a development board, a 3D-printed case, a few hours of testing on the trails.
+
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details.
