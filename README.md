@@ -2,9 +2,11 @@
   <source media="(prefers-color-scheme: dark)" srcset="https://gist.githubusercontent.com/anpaiss/78cf5eb76ad50594402b9778008a00a8/raw/AutoLoopKaroo-card-dark.svg">
   <img alt="Downloads and latest release" src="https://gist.githubusercontent.com/anpaiss/78cf5eb76ad50594402b9778008a00a8/raw/AutoLoopKaroo-card-light.svg">
 </picture>
+<a href="#karoo-2"><kbd>&nbsp;Karoo 2 owner? There is a build for you &rarr;&nbsp;</kbd></a>
+
 # Auto Loop Karoo
 
-A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatically scrolls through your ride data pages — so you can focus on riding.
+A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatically scrolls through your ride data pages — so you can focus on riding. Also available for the [Karoo 2](#karoo-2).
 
 ---
 
@@ -49,12 +51,18 @@ A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatic
 
 ## Requirements
 
-- Hammerhead Karoo 3 (Hardware ID: k24)
+- Hammerhead Karoo 3 (Hardware ID: k24), or a Karoo 2 with the [K2 build](#karoo-2)
 - Karoo firmware with extension support
 
-### Karoo 2
+---
 
-The regular APK declares Android 12 as its minimum, so a Karoo 2 (Android 8) refuses to install it. Nothing in the app needs Android 12, so there is a second build of the same code, **AutoLoopKaroo-K2.apk**, that installs on a Karoo 2. It is published as a pre-release ([latest K2 build](https://github.com/anpaiss/AutoLoopKaroo/releases?q=k2)) and has not been tested on a Karoo 2, because I do not own one: if you try it, please say how it went in an [issue](../../issues). The two builds are the same app and keep the same settings; a Karoo 3 should use the regular APK.
+## Karoo 2
+
+The regular APK declares Android 12 as its minimum, so a Karoo 2 (Android 8) refuses to install it. Nothing in the app needs Android 12, so there is a second build of the same code, **AutoLoopKaroo-K2.apk**, that installs on a Karoo 2.
+
+- Download: [latest K2 build](https://github.com/anpaiss/AutoLoopKaroo/releases?q=k2), published as a pre-release next to the regular one.
+- Confirmed working by a Karoo 2 owner on OS 1.613.2351.12 (November 2026): overlay prompt, configuration, page switching and the pause button all behave as on the Karoo 3. I do not own a Karoo 2, so if something differs from what this README describes, please say so in an [issue](../../issues).
+- The two builds are the same app and keep the same settings. A Karoo 3 should use the regular APK.
 
 ---
 
