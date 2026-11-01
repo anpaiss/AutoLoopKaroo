@@ -1,0 +1,13 @@
+{
+  "label": "Auto Loop Karoo (Karoo 2)",
+  "packageName": "com.example.autoloopkaroo",
+  "latestApkUrl": "https://github.com/anpaiss/AutoLoopKaroo/releases/download/v1.2.2-k2/AutoLoopKaroo-K2.apk",
+  "latestVersion": "1.2.2-K2",
+  "latestVersionCode": 12,
+  "iconUrl": "https://raw.githubusercontent.com/anpaiss/AutoLoopKaroo/master/icon_foreground.png",
+  "developer": "Andrea Paissan",
+  "description": "Automatically scrolls through your ride data pages so you can focus on riding. Navigation-aware: switches to the map page before a turn and resumes scrolling after it. Per-page dwell time, skip pages, optional sound feedback.",
+  "releaseNotes": "",
+  "screenshotUrls": ["https://raw.githubusercontent.com/anpaiss/AutoLoopKaroo/master/docs/screenshot-config-1.png", "https://raw.githubusercontent.com/anpaiss/AutoLoopKaroo/master/docs/screenshot-config-2.png", "https://raw.githubusercontent.com/anpaiss/AutoLoopKaroo/master/docs/screenshot-field-on.png", "https://raw.githubusercontent.com/anpaiss/AutoLoopKaroo/master/docs/screenshot-field-off.png"],
+  "tags": ["performance"]
+}

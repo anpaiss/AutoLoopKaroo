@@ -33,8 +33,22 @@ android {
         targetSdk = 31
         versionCode = 12
         versionName = "1.2.2"
+        manifestPlaceholders["manifestUrl"] = "https://github.com/anpaiss/AutoLoopKaroo/releases/latest/download/manifest.json"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // Two flavors, same code: k3 is the normal build; k2 is the same app allowed to install on a
+    // Karoo 2 (Android 8, API 26), with its own manifest so a K2 install is never offered the K3 APK.
+    flavorDimensions += "device"
+    productFlavors {
+        create("k3") { dimension = "device"; isDefault = true }
+        create("k2") {
+            dimension = "device"
+            minSdk = 26
+            versionNameSuffix = "-K2"
+            manifestPlaceholders["manifestUrl"] = "https://raw.githubusercontent.com/anpaiss/AutoLoopKaroo/master/k2/manifest.json"
+        }
     }
 
     lint {
@@ -81,11 +95,12 @@ androidComponents {
 // Schema: io.hammerhead.karooext.models.KarooAppManifest.
 val generateManifest by tasks.registering {
     val out = layout.projectDirectory.file("manifest.json")
+    val outK2 = rootProject.layout.projectDirectory.file("k2/manifest.json")
     val version = android.defaultConfig.versionName ?: "0"
     val code = android.defaultConfig.versionCode ?: 0
     val notes = System.getenv("RELEASE_NOTES").orEmpty()
     inputs.property("version", version); inputs.property("code", code); inputs.property("notes", notes)
-    outputs.file(out)
+    outputs.files(out, outK2)
     doLast {
         fun q(v: String) = "\"" + v.replace("\\", "\\\\").replace("\"", "\\\"")
             .replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t") + "\""
@@ -93,13 +108,13 @@ val generateManifest by tasks.registering {
         // to anything that is not a browser, so the Karoo backend could not use them.
         val shots = listOf("config-1", "config-2", "field-on", "field-off")
             .joinToString(", ") { q("https://raw.githubusercontent.com/anpaiss/AutoLoopKaroo/master/docs/screenshot-$it.png") }
-        out.asFile.writeText(
+        fun manifest(label: String, apkUrl: String, versionName: String) =
             """
             {
-              "label": "Auto Loop Karoo",
+              "label": ${q(label)},
               "packageName": "com.example.autoloopkaroo",
-              "latestApkUrl": "https://github.com/anpaiss/AutoLoopKaroo/releases/latest/download/AutoLoopKaroo.apk",
-              "latestVersion": ${q(version)},
+              "latestApkUrl": ${q(apkUrl)},
+              "latestVersion": ${q(versionName)},
               "latestVersionCode": $code,
               "iconUrl": "https://raw.githubusercontent.com/anpaiss/AutoLoopKaroo/master/icon_foreground.png",
               "developer": "Andrea Paissan",
@@ -109,7 +124,11 @@ val generateManifest by tasks.registering {
               "tags": ["performance"]
             }
             """.trimIndent()
-        )
+        out.asFile.writeText(manifest("Auto Loop Karoo",
+            "https://github.com/anpaiss/AutoLoopKaroo/releases/latest/download/AutoLoopKaroo.apk", version))
+        outK2.asFile.parentFile.mkdirs()
+        outK2.asFile.writeText(manifest("Auto Loop Karoo (Karoo 2)",
+            "https://github.com/anpaiss/AutoLoopKaroo/releases/download/v$version-k2/AutoLoopKaroo-K2.apk", "$version-K2"))
     }
 }
 tasks.named("preBuild") { dependsOn(generateManifest) }

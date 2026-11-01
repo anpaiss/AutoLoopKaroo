@@ -21,7 +21,7 @@
              URL never changes. -->
         <meta-data
             android:name="io.hammerhead.karooext.MANIFEST_URL"
-            android:value="https://github.com/anpaiss/AutoLoopKaroo/releases/latest/download/manifest.json" />
+            android:value="${manifestUrl}" />
 
         <activity
             android:name=".MainActivity"

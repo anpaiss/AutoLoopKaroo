@@ -52,6 +52,10 @@ A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatic
 - Hammerhead Karoo 3 (Hardware ID: k24)
 - Karoo firmware with extension support
 
+### Karoo 2
+
+The regular APK declares Android 12 as its minimum, so a Karoo 2 (Android 8) refuses to install it. Nothing in the app needs Android 12, so there is a second build of the same code, **AutoLoopKaroo-K2.apk**, that installs on a Karoo 2. It is published as a pre-release ([latest K2 build](https://github.com/anpaiss/AutoLoopKaroo/releases?q=k2)) and has not been tested on a Karoo 2, because I do not own one: if you try it, please say how it went in an [issue](../../issues). The two builds are the same app and keep the same settings; a Karoo 3 should use the regular APK.
+
 ---
 
 ## Installation
@@ -72,6 +76,7 @@ From 1.1.0 the app also ships a Karoo **extension manifest**, so it can be liste
 1. Bump `versionCode` (must increase — it is what the Karoo compares to offer an update) and `versionName` in `app/build.gradle.kts`.
 2. `./gradlew assembleRelease` with the release keystore in `local.properties` (`signing.*`). The build also writes `app/manifest.json` with the same version and code.
 3. Create the GitHub release for tag `vX.Y.Z` (not a pre-release: `latest` only resolves to stable releases) and attach **both** files, the APK renamed to `AutoLoopKaroo.apk` and `manifest.json`, with exactly those names — both URLs are fixed.
+4. Karoo 2 build: `./gradlew assembleK2Release` produces `AutoLoopKaroo-X.Y.Z-K2.apk` (flavor `k2`, minSdk 26, same code and signature). Publish it as a **pre-release** for tag `vX.Y.Z-k2` with the APK renamed to `AutoLoopKaroo-K2.apk`, and commit the regenerated `k2/manifest.json`: the K2 build reads its manifest from that file on `master`, so a Karoo 2 is never offered the regular APK.
 
 ---
 
