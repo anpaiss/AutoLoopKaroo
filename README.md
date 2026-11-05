@@ -156,6 +156,12 @@ Ride paused or ended
 
 ---
 
+<!-- battery:autoloop -->
+## Battery use
+
+**< 0.1 % of the Karoo's battery use**, measured with Android's battery statistics (provisional, Karoo 3, 4 November 2026). How it was measured, and why the number is provisional: [the battery measurements of the extensions](https://lagorai.bike/blog/karoo-extensions-battery-use/).
+<!-- /battery:autoloop -->
+
 ## Is it safe?
 
 - The code is all here, open source.
