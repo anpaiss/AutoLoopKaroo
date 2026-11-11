@@ -172,8 +172,7 @@ Ride paused or ended
 ## Is it safe?
 
 - The code is all here, open source.
-- `AutoLoopKaroo.apk` 1.2.2 on [VirusTotal](https://www.virustotal.com/gui/file/b824715a3f10794e2c69f6e793aa1e0179fe7b1c394398c65d4e0045cd06e20d): none of the 68 antivirus engines flag it.
-- Its SHA-256 is `b824715a3f10794e2c69f6e793aa1e0179fe7b1c394398c65d4e0045cd06e20d`; compare it with the file you downloaded (`certutil -hashfile AutoLoopKaroo.apk SHA256` on Windows, `sha256sum AutoLoopKaroo.apk` elsewhere).
+- `AutoLoopKaroo.apk` 1.2.3: its SHA-256 is `d23bf34fea811872a5b88055d020b7b6ce43a0a75af269350fd87e4063d8484d`; compare it with the file you downloaded (`certutil -hashfile AutoLoopKaroo.apk SHA256` on Windows, `sha256sum AutoLoopKaroo.apk` elsewhere).
 
 ## Support
 
