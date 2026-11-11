@@ -222,6 +222,14 @@ fun ConfigScreen(context: android.content.Context) {
                 }
             }
 
+            // The fields at real size in the Karoo's smallest cells, as in the other extensions
+            Button(
+                onClick = { context.startActivity(Intent(context, FieldPreviewActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("FIELD PREVIEW")
+            }
+
             HorizontalDivider()
             Text(
                 text = stringResource(R.string.config_dwell_title),

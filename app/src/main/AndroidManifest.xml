@@ -35,6 +35,10 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".FieldPreviewActivity"
+            android:exported="false" />
+
         <service
             android:name=".AutoLoopExtension"
             android:exported="true"
