@@ -31,8 +31,8 @@ android {
         applicationId = "com.example.autoloopkaroo"
         minSdk = 31
         targetSdk = 31
-        versionCode = 12
-        versionName = "1.2.2"
+        versionCode = 13
+        versionName = "1.2.3"
         manifestPlaceholders["manifestUrl"] = "https://github.com/anpaiss/AutoLoopKaroo/releases/latest/download/manifest.json"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

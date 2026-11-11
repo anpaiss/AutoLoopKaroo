@@ -26,6 +26,12 @@ A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatic
   </tr>
 </table>
 
+## What's new in 1.2.3
+
+- **The AUTO status field is now drawn like the Switches field**: same layout and colours, ON green and OFF red, sized to the cell. It shows the same switch, so a second style made no sense. On the Karoo's light theme the old field was invisible (its text was always white).
+- **FIELD PREVIEW in the app**: the field drawn at the real sizes of the Karoo cells, dark and light.
+- **Switches field sized to its cell** (shared library 0.2.4): the caption fits a half cell, and ON / OFF no longer touches the edge.
+
 ## What's new in 1.2.2
 
 - **12 pages instead of 10**: the number of pages Auto Loop can use goes from 10 to 12, the most the Karoo allows in a profile.
@@ -63,6 +69,7 @@ The regular APK declares Android 12 as its minimum, so a Karoo 2 (Android 8) ref
 - Download: [latest K2 build](https://github.com/anpaiss/AutoLoopKaroo/releases?q=k2), published as a pre-release next to the regular one.
 - Confirmed working by a Karoo 2 owner on OS 1.613.2351.12 (November 2026): overlay prompt, configuration, page switching and the pause button all behave as on the Karoo 3. I do not own a Karoo 2, so if something differs from what this README describes, please say so in an [issue](../../issues).
 - The two builds are the same app and keep the same settings. A Karoo 3 should use the regular APK.
+- Every K2 build is published untested, since I cannot try it myself. If 1.2.3-K2 misbehaves, 1.2.2-K2 is still available on the releases page; please open an issue.
 
 ---
 
