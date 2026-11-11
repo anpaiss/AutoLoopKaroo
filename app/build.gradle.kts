@@ -135,7 +135,7 @@ tasks.named("preBuild") { dependsOn(generateManifest) }
 
 dependencies {
     implementation(libs.karoo.ext)
-    implementation("com.github.anpaiss:karooswitches:0.2.3")
+    implementation("com.github.anpaiss:karooswitches:0.2.4")
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.datastore.preferences)
 

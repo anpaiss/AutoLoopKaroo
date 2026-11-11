@@ -9,7 +9,4 @@
     <color name="white">#FFFFFFFF</color>
     <color name="alert_on_background">#FF1B5E20</color>
     <color name="alert_off_background">#FFB71C1C</color>
-    <color name="alert_text">#FFFFFFFF</color>
-    <!-- Text of the status data field: black on the Karoo's light theme, white on the dark one (values-night) -->
-    <color name="field_text">#FF000000</color>
-</resources>
+    <color name="alert_text">#FFFFFFFF</color></resources>
