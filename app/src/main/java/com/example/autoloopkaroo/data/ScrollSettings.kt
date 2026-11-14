@@ -29,7 +29,12 @@ data class ScrollConfig(
     val soundEnabled: Boolean = true,
     val nearCueEnabled: Boolean = true,
     /** The bottom-left button (lap) also pauses/resumes the loop. Off: it only marks the lap. */
-    val lapButtonPauses: Boolean = true
+    val lapButtonPauses: Boolean = true,
+    /**
+     * Alerts for what happens by itself: ride start or resume, pause and ride end, the resume after a turn.
+     * Off by default (14/11/2026): the alerts for what the rider changes (toggle, lap-button pause) always show.
+     */
+    val autoAlerts: Boolean = false
 ) {
     fun dwellForPage(index: Int): Long =
         pageDwellMs.getOrElse(index) { DEFAULT_DWELL_MS }
@@ -43,6 +48,7 @@ object PrefsKeys {
     val SOUND_ENABLED = booleanPreferencesKey("sound_enabled")
     val NEAR_CUE_ENABLED = booleanPreferencesKey("near_cue_enabled")
     val LAP_BUTTON_PAUSES = booleanPreferencesKey("lap_button_pauses")
+    val AUTO_ALERTS = booleanPreferencesKey("auto_alerts")
 }
 
 private fun String.toPageDwellList(): List<Long> =
@@ -59,7 +65,8 @@ fun Context.scrollConfigFlow(): Flow<ScrollConfig> =
             postTurnDistanceM = prefs[PrefsKeys.POST_TURN_DISTANCE_M] ?: DEFAULT_POST_TURN_M,
             soundEnabled = prefs[PrefsKeys.SOUND_ENABLED] ?: true,
             nearCueEnabled = prefs[PrefsKeys.NEAR_CUE_ENABLED] ?: true,
-            lapButtonPauses = prefs[PrefsKeys.LAP_BUTTON_PAUSES] ?: true
+            lapButtonPauses = prefs[PrefsKeys.LAP_BUTTON_PAUSES] ?: true,
+            autoAlerts = prefs[PrefsKeys.AUTO_ALERTS] ?: false
         )
     }
 
@@ -77,5 +84,6 @@ suspend fun Context.saveScrollConfig(config: ScrollConfig) {
         prefs[PrefsKeys.SOUND_ENABLED] = config.soundEnabled
         prefs[PrefsKeys.NEAR_CUE_ENABLED] = config.nearCueEnabled
         prefs[PrefsKeys.LAP_BUTTON_PAUSES] = config.lapButtonPauses
+        prefs[PrefsKeys.AUTO_ALERTS] = config.autoAlerts
     }
 }

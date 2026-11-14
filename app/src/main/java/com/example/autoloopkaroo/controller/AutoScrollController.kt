@@ -33,6 +33,8 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "AutoScrollController"
 
+private const val RESUME_ALERT_DELAY_MS = 3_000L
+
 enum class ScrollState { INACTIVE, SCROLLING, NEAR_CUE, POST_TURN, PAUSED }
 
 class AutoScrollController(
@@ -57,6 +59,7 @@ class AutoScrollController(
 
     private var scrollJob: Job? = null
     private var nearCueJob: Job? = null
+    private var resumeAlertJob: Job? = null
     @Volatile private var started = false
 
     @Volatile private var lastDistanceToTurn = Double.MAX_VALUE
@@ -94,9 +97,9 @@ class AutoScrollController(
                 RideState.Recording -> {
                     rideActive = true
                     subscribeToNavigationStreams()
-                    // No alert: the ride started (or resumed) by itself, Andrea changed nothing
                     if (config.isEnabled && scrollState == ScrollState.INACTIVE) {
-                        scope.launch { enterScrolling(notify = false) }
+                        // The ride started or resumed by itself: an alert only with "Automatic alerts" on
+                        scope.launch { enterScrolling(notify = config.autoAlerts) }
                     }
                 }
                 else -> {
@@ -107,9 +110,10 @@ class AutoScrollController(
                     if (scrollState != ScrollState.INACTIVE && !keepPaused) {
                         scrollJob?.cancel()
                         nearCueJob?.cancel()
-                        // No alert on pause or ride end: it happens by itself
+                        resumeAlertJob?.cancel()
                         scrollState = ScrollState.INACTIVE
                         stateBeforeCue = ScrollState.INACTIVE
+                        if (config.autoAlerts) scope.launch { notifyToggle(false) }
                     }
                 }
             }
@@ -154,6 +158,7 @@ class AutoScrollController(
         Log.d(TAG, "Pause toggle → PAUSED")
         scrollJob?.cancel()
         nearCueJob?.cancel()
+        resumeAlertJob?.cancel()
         scrollState = ScrollState.PAUSED
         stateBeforeCue = ScrollState.INACTIVE
         try {
@@ -273,9 +278,21 @@ class AutoScrollController(
     private fun onPostTurnComplete() {
         Log.d(TAG, "Post-turn distance reached → back to $stateBeforeCue")
         when (stateBeforeCue) {
-            // No alert on the automatic resume after a turn
-            ScrollState.SCROLLING -> enterScrolling(notify = false)
+            ScrollState.SCROLLING -> {
+                enterScrolling(notify = false)
+                if (config.autoAlerts) scheduleResumeAlert()
+            }
             else -> scrollState = ScrollState.INACTIVE
+        }
+    }
+
+    private fun scheduleResumeAlert() {
+        resumeAlertJob?.cancel()
+        resumeAlertJob = scope.launch {
+            delay(RESUME_ALERT_DELAY_MS)
+            if (isActive && scrollState == ScrollState.SCROLLING) {
+                notifyToggle(true)
+            }
         }
     }
 
@@ -288,13 +305,17 @@ class AutoScrollController(
 
     private fun enterScrolling(notify: Boolean = true) {
         scrollState = ScrollState.SCROLLING
-        if (notify) notifyToggle(true)
+        if (notify) {
+            resumeAlertJob?.cancel()
+            notifyToggle(true)
+        }
         scheduleNextScroll()
     }
 
     private fun enterInactive() {
         scrollState = ScrollState.INACTIVE
         scrollJob?.cancel()
+        resumeAlertJob?.cancel()
         notifyToggle(false)
     }
 
@@ -362,6 +383,7 @@ class AutoScrollController(
     fun stop() {
         scrollJob?.cancel()
         nearCueJob?.cancel()
+        resumeAlertJob?.cancel()
         navConsumerIds.forEach { karooSystem.removeConsumer(it) }
         navConsumerIds.clear()
         consumerIds.forEach { karooSystem.removeConsumer(it) }

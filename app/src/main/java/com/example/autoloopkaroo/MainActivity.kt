@@ -91,6 +91,9 @@ fun ConfigScreen(context: android.content.Context) {
     var localLapButtonPauses by remember(formKey) {
         androidx.compose.runtime.mutableStateOf(savedConfig.lapButtonPauses)
     }
+    var localAutoAlerts by remember(formKey) {
+        androidx.compose.runtime.mutableStateOf(savedConfig.autoAlerts)
+    }
     var overlayGranted by remember { mutableStateOf(Settings.canDrawOverlays(context)) }
     // The system settings page is a separate activity: re-check when the user comes back
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -167,6 +170,23 @@ fun ConfigScreen(context: android.content.Context) {
                 Switch(
                     checked = localSoundEnabled,
                     onCheckedChange = { localSoundEnabled = it }
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.config_auto_alerts_label),
+                    fontSize = 16.sp
+                )
+                Switch(
+                    checked = localAutoAlerts,
+                    onCheckedChange = { localAutoAlerts = it }
                 )
             }
 
@@ -318,7 +338,8 @@ fun ConfigScreen(context: android.content.Context) {
                                 postTurnDistanceM = localPostTurnM,
                                 soundEnabled = localSoundEnabled,
                                 nearCueEnabled = localNearCueEnabled,
-                                lapButtonPauses = localLapButtonPauses
+                                lapButtonPauses = localLapButtonPauses,
+                                autoAlerts = localAutoAlerts
                             )
                         )
                     }

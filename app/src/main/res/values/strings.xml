@@ -17,6 +17,7 @@
     <string name="datatype_name">Auto Scroll</string>
     <string name="datatype_desc">Auto-scroll pages status</string>
     <string name="config_sound_label">Toggle sound</string>
+    <string name="config_auto_alerts_label">Automatic alerts (ride start, pause, after a turn)</string>
     <string name="config_near_cue_toggle_label">Show map near turns</string>
     <string name="config_save">Save</string>
     <string name="config_lap_button_label">Bottom-left button pauses the loop</string>
