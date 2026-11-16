@@ -34,7 +34,7 @@ data class ScrollConfig(
      * Alerts for what happens by itself: ride start or resume, pause and ride end, the resume after a turn.
      * Off by default (14/11/2026): the alerts for what the rider changes (toggle, lap-button pause) always show.
      */
-    val autoAlerts: Boolean = false
+    val autoAlerts: Boolean = true
 ) {
     fun dwellForPage(index: Int): Long =
         pageDwellMs.getOrElse(index) { DEFAULT_DWELL_MS }
@@ -66,7 +66,7 @@ fun Context.scrollConfigFlow(): Flow<ScrollConfig> =
             soundEnabled = prefs[PrefsKeys.SOUND_ENABLED] ?: true,
             nearCueEnabled = prefs[PrefsKeys.NEAR_CUE_ENABLED] ?: true,
             lapButtonPauses = prefs[PrefsKeys.LAP_BUTTON_PAUSES] ?: true,
-            autoAlerts = prefs[PrefsKeys.AUTO_ALERTS] ?: false
+            autoAlerts = prefs[PrefsKeys.AUTO_ALERTS] ?: true
         )
     }
 

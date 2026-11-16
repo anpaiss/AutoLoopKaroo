@@ -26,6 +26,15 @@ A [Hammerhead Karoo 3](https://www.hammerhead.io/karoo) extension that automatic
   </tr>
 </table>
 
+## What's new in 1.2.4
+
+- **Automatic alerts, with their own switch.** Auto Loop shows a short alert when scrolling turns on or off. Now there are two kinds: the alerts for what **you** change (the toggle in the app or in the Switches field, the bottom-left button) always show; the alerts for what happens **by itself** (scroll ON when the ride starts or resumes and after a turn, scroll OFF on pause and at the end of the ride) follow the new **Automatic alerts** switch, on by default. Turn it off if you only want to hear about what you did. Scrolling itself is unchanged.
+- Updated Kotlin and coroutines libraries.
+
+<img width="240" alt="The Auto Loop app: Show map near turns, Toggle sound, Automatic alerts (ride start, pause, after a turn) and Bottom-left button pauses the loop, all switched on" src="docs/screenshot-alerts.png" />
+
+Install over any previous version with `adb install -r AutoLoopKaroo.apk`; settings are kept.
+
 ## What's new in 1.2.3
 
 - **The AUTO status field is now drawn like the Switches field**: same layout and colours, ON green and OFF red, sized to the cell. It shows the same switch, so a second style made no sense. On the Karoo's light theme the old field was invisible (its text was always white).
@@ -104,6 +113,7 @@ Open the **Auto Loop Karoo** app on your Karoo:
 | **Auto Scroll** toggle | Enable or disable auto-scrolling globally. |
 | **Time per page** | Seconds to display each page, for up to 12 pages (the Karoo's maximum per profile). Set to **Skip** (0s) to ignore a page in the loop. |
 | **Sound Feedback** | Toggle audible beeps when enabling/disabling scroll. |
+| **Automatic alerts** | On (default): an alert also when scrolling turns on or off by itself, at ride start or resume, after a turn, on pause and at the end. Off: alerts only for what you change. |
 | **Switch-to-map distance** | Distance before a turn to switch to the map page (10–250 m). |
 | **Resume distance** | Distance after a turn before auto-scroll resumes (10–250 m). |
 | **Bottom-left button pauses the loop** | On (default): the button pauses and resumes the loop during a ride, as before. Off: the button only marks a lap and the loop is controlled from the app or the Switches field. |
@@ -172,7 +182,7 @@ Ride paused or ended
 ## Is it safe?
 
 - The code is all here, open source.
-- `AutoLoopKaroo.apk` 1.2.3: its SHA-256 is `d23bf34fea811872a5b88055d020b7b6ce43a0a75af269350fd87e4063d8484d`; compare it with the file you downloaded (`certutil -hashfile AutoLoopKaroo.apk SHA256` on Windows, `sha256sum AutoLoopKaroo.apk` elsewhere).
+- `AutoLoopKaroo.apk` 1.2.4: its SHA-256 is `b389c095804b18fbdda7eccc63b4170d04a120a4188eccfccebf2f23e3de4b57`; compare it with the file you downloaded (`certutil -hashfile AutoLoopKaroo.apk SHA256` on Windows, `sha256sum AutoLoopKaroo.apk` elsewhere).
 
 ## Support
 

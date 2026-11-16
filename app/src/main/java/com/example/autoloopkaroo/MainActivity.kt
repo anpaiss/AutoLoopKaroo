@@ -180,9 +180,11 @@ fun ConfigScreen(context: android.content.Context) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                // weight: the two-line label leaves the switch its room (it was pushed off the screen)
                 Text(
                     text = stringResource(R.string.config_auto_alerts_label),
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    modifier = Modifier.weight(1f).padding(end = 8.dp)
                 )
                 Switch(
                     checked = localAutoAlerts,

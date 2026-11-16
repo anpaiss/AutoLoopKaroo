@@ -1,13 +1,13 @@
 {
   "label": "Auto Loop Karoo (Karoo 2)",
   "packageName": "com.example.autoloopkaroo",
-  "latestApkUrl": "https://github.com/anpaiss/AutoLoopKaroo/releases/download/v1.2.3-k2/AutoLoopKaroo-K2.apk",
-  "latestVersion": "1.2.3-K2",
-  "latestVersionCode": 13,
+  "latestApkUrl": "https://github.com/anpaiss/AutoLoopKaroo/releases/download/v1.2.4-k2/AutoLoopKaroo-K2.apk",
+  "latestVersion": "1.2.4-K2",
+  "latestVersionCode": 14,
   "iconUrl": "https://raw.githubusercontent.com/anpaiss/AutoLoopKaroo/master/icon_foreground.png",
   "developer": "Andrea Paissan",
   "description": "Automatically scrolls through your ride data pages so you can focus on riding. Navigation-aware: switches to the map page before a turn and resumes scrolling after it. Per-page dwell time, skip pages, optional sound feedback.",
-  "releaseNotes": "",
+  "releaseNotes": "1.2.4: alerts for what happens by itself (scroll ON at ride start or resume and after a turn, scroll OFF on pause and ride end) now have their own switch, Automatic alerts, on by default; the alerts for what you change (from the app, the Switches field, the lap button) always show. Updated Kotlin and coroutines. Settings are kept on update.",
   "screenshotUrls": ["https://raw.githubusercontent.com/anpaiss/AutoLoopKaroo/master/docs/screenshot-config-1.png", "https://raw.githubusercontent.com/anpaiss/AutoLoopKaroo/master/docs/screenshot-config-2.png", "https://raw.githubusercontent.com/anpaiss/AutoLoopKaroo/master/docs/screenshot-field-on.png", "https://raw.githubusercontent.com/anpaiss/AutoLoopKaroo/master/docs/screenshot-field-off.png"],
   "tags": ["performance"]
 }
